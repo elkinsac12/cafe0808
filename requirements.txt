@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+pymongo
+pydantic
+reportlab
+jinja2
+gunicorn
+bcrypt
+python-multipart
+pytz
+pyjwt
+google-api-python-client
+google-auth
