@@ -1,78 +1,93 @@
-# 0808 Café — Landing + Sistema de inventario (v3)
+# cafe0808
 
-Un solo servicio (FastAPI) con dos caras:
 
-| URL | Qué muestra |
-|---|---|
-| `/` | Landing pública (carpeta `landing/`) |
-| `/sistema/` | Login y sistema de inventario |
-| `/Sistema`, `/SISTEMA`, `/sistema` | Redirigen a `/sistema/` |
-| `/api/...` | API del sistema (requiere sesión, salvo `/api/public/precios`) |
 
-## Estructura
+## Getting started
+
+To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+
+Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+
+## Add your files
+
+* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
+* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
 
 ```
-app/
-  main.py              arma la app (middlewares, rutas, archivos estáticos)
-  config.py            variables de entorno
-  database.py          conexión única a MongoDB (pool) + índices
-  security.py          sesión firmada, roles, contraseñas, bloqueo por intentos
-  middleware.py        cabeceras de seguridad, CSRF, límite de peticiones por IP
-  models.py            validación de todo lo que llega a la API
-  pdf_generator.py     facturas y pedidos en PDF
-  services/inventario.py   stock de café y empaques, costos de una venta
-  routers/             un archivo por módulo:
-    auth.py  usuarios.py  clientes.py  gastos.py  empaques.py
-    productos.py  inventario.py  ventas.py  cotizaciones.py
-    public.py (precios para la landing)  pages.py (páginas)
-templates/sistema.html       pantalla del sistema (solo HTML)
-static/sistema/css/          sistema.css (estructura) + tema.css (colores 0808)
-static/sistema/js/           un archivo por módulo: core, auth, ventas, carrito,
-                             pedidos, clientes, gastos, inventario, empaques,
-                             compras, creditos, reportes, usuarios, pdf, app
-landing/index.html           landing (solo HTML)
-landing/assets/css/          landing.css
-landing/assets/js/           config.js (WhatsApp, cafés, precios de respaldo),
-                             precios.js, carrito.js, fichas.js, extras.js, main.js
-landing/assets/img/          fotos de producto (WebP + JPG) y logos
+cd existing_repo
+git remote add origin https://gitlab.com/cafe_project2/cafe0808.git
+git branch -M main
+git push -uf origin main
 ```
 
-## Precios de la landing
-La landing toma el precio del **sistema** cuando el nombre del producto contiene
-`bourbon`, `chiroso` o `blend` y el gramaje es 250 o 500. Si no lo encuentra, usa los
-precios de respaldo de `landing/assets/js/config.js`. Cambiar un precio en
-*Productos e Inventario* lo actualiza en la landing en máximo 1 minuto.
+## Integrate with your tools
 
-## Seguridad (qué cambió en v3)
-- Toda la API exige sesión. Las secciones de administración exigen rol `admin`.
-- La sesión es una cookie firmada, `HttpOnly` y `SameSite=Strict`: el navegador no puede
-  leerla ni modificarla. El rol se lee **en cada petición desde la base de datos**;
-  cambiar el rol o la contraseña de alguien, o borrarlo, corta su sesión al instante.
-- Un vendedor solo ve y gestiona sus propias ventas y pedidos, y no ve costos ni ganancias.
-- Precios, subtotales y gramos se recalculan en el servidor.
-- Bloqueo de 5 minutos tras 5 intentos fallidos de login; límite de peticiones por IP.
-- Protección CSRF, cabeceras de seguridad (CSP, HSTS, X-Frame-Options) y `/docs` apagado.
+* [Set up project integrations](https://gitlab.com/cafe_project2/cafe0808/-/settings/integrations)
 
-## Render
-- **Build command:** `pip install -r requirements.txt`
-- **Start command:** `gunicorn app.main:app -k uvicorn.workers.UvicornWorker -w 2 --bind 0.0.0.0:$PORT --timeout 60`
-- **Variables de entorno:**
-  - `MONGO_URI` (obligatoria)
-  - `SECRET_KEY` (**obligatoria**): texto largo y aleatorio. Si falta, las sesiones se cierran en cada reinicio.
-    Genera una con: `python -c "import secrets; print(secrets.token_urlsafe(48))"`
-  - `DB_NAME` (opcional, por defecto `gestion_cafe`)
-  - `WEB_CONCURRENCY` (opcional, procesos; por defecto 2)
-  - `ADMIN_PASSWORD` (opcional): contraseña del `admin` **solo** si la base está vacía.
-  - `ENABLE_DOCS=1` (opcional): enciende `/docs` para pruebas.
+## Collaborate with your team
 
-## Local
-```
-pip install -r requirements.txt
-set MONGO_URI=mongodb://localhost:27017      (Windows)
-set SECRET_KEY=cualquier-texto-largo
-uvicorn app.main:app --reload
-```
-Landing: http://localhost:8000/ — Sistema: http://localhost:8000/sistema/
+* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
+* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
+* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
+* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
+* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
 
-Al publicar cambios de CSS/JS del sistema, sube `VERSION_ASSETS` en `app/routers/pages.py`
-(y el `?v=` en `landing/index.html` para la landing) para que los navegadores no usen la copia vieja.
+## Test and Deploy
+
+Use the built-in continuous integration in GitLab.
+
+* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
+* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
+* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
+* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
+* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+
+***
+
+# Editing this README
+
+When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+
+## Suggestions for a good README
+
+Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+
+## Name
+Choose a self-explaining name for your project.
+
+## Description
+Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+
+## Badges
+On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+
+## Visuals
+Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+
+## Installation
+Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+
+## Usage
+Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+
+## Support
+Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+
+## Roadmap
+If you have ideas for releases in the future, it is a good idea to list them in the README.
+
+## Contributing
+State if you are open to contributions and what your requirements are for accepting them.
+
+For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+
+You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+
+## Authors and acknowledgment
+Show your appreciation to those who have contributed to the project.
+
+## License
+For open source projects, say how it is licensed.
+
+## Project status
+If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
