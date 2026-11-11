@@ -8,7 +8,7 @@ from pymongo import MongoClient, ASCENDING, DESCENDING
 
 from app.config import MONGO_URI, DB_NAME, MONGO_POOL_SIZE
 
-log = logging.getLogger("cafe0808")
+log = logging.getLogger("gestion_cafe")
 
 # Conexión con los certificados seguros de certifi
 client = MongoClient(

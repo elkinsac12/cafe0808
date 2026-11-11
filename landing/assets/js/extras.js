@@ -6,9 +6,9 @@ import { agregar } from "./carrito.js";
 /* ---------------- Test ---------------- */
 const PREGUNTAS = [
   { q: "¿Cómo tomas tu café normalmente?", o: [
-    ["Con leche o con bastante azúcar", { blend: 2 }],
-    ["Negro, sin nada", { chiroso: 2, bourbon: 1 }],
-    ["Con un toque de panela o miel", { bourbon: 2, blend: 1 }] ] },
+    ["Con azúcar o panela", { blend: 2 }],
+    ["Filtrado", { chiroso: 2, bourbon: 1 }],
+    ["Leche", { bourbon: 2, blend: 1 }] ] },
   { q: "¿Qué sabor te provoca más?", o: [
     ["Chocolate y panela", { blend: 3 }],
     ["Frutas y caramelo", { bourbon: 3 }],

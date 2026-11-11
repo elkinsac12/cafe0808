@@ -22,8 +22,14 @@ function iniciarEnlaces() {
   for (const id of ["lnkInstagram", "pieInstagram"]) $("#" + id).href = INSTAGRAM;
   for (const id of ["lnkTiktok", "pieTiktok"]) $("#" + id).href = TIKTOK;
   $("#anio").textContent = new Date().getFullYear();
-  const frases = ["Café de especialidad", "Cosecha selecta", "Gigante, Huila", "Urrao, Antioquia", "Ciudad Bolívar", "100% colombiano", "Tostado en tandas pequeñas"];
-  $("#cinta").innerHTML = [...frases, ...frases].map(t => `<span>${t}</span>`).join("");
+  
+  // Definimos la estructura exacta con una sola estrella central
+  const textoCinta = "Envíos gratis en compras superiores a $150 mil pesos";
+  
+  // Creamos 8 repeticiones idénticas para cubrir la pantalla sin duplicaciones raras
+  const itemsHTML = Array(8).fill(`<span>${textoCinta}</span>`).join("");
+  
+  $("#cinta").innerHTML = itemsHTML;
 }
 
 function pintarPrecios() {
