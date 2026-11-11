@@ -1,5 +1,6 @@
 """Conexión única a MongoDB (pool compartido por todos los hilos) e índices."""
 import logging
+import certifi
 from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi import HTTPException
@@ -9,7 +10,7 @@ from app.config import MONGO_URI, DB_NAME, MONGO_POOL_SIZE
 
 log = logging.getLogger("cafe0808")
 
-# Un solo cliente para toda la app: reutiliza conexiones en vez de abrir una por petición.
+# Conexión con los certificados seguros de certifi
 client = MongoClient(
     MONGO_URI,
     maxPoolSize=MONGO_POOL_SIZE,
@@ -17,6 +18,8 @@ client = MongoClient(
     connectTimeoutMS=8000,
     socketTimeoutMS=20000,
     retryWrites=True,
+    tls=True,
+    tlsCAFile=certifi.where()
 )
 db = client[DB_NAME]
 
@@ -33,13 +36,13 @@ def fix_id(doc):
 
 
 def oid(valor: str) -> ObjectId:
-    """Convierte un id de la URL a ObjectId; si no es válido responde 400 (no 500)."""
     try:
         return ObjectId(valor)
     except (InvalidId, TypeError):
         raise HTTPException(status_code=400, detail="Identificador inválido")
 
 
+# <--- ¡Asegúrate de que esta función esté presente exactamente así! --->
 def crear_indices():
     """Índices para que las consultas sigan siendo rápidas con muchos datos y usuarios."""
     indices = [
@@ -62,5 +65,5 @@ def crear_indices():
     for coleccion, claves, opciones in indices:
         try:
             db[coleccion].create_index(claves, **opciones)
-        except Exception as e:  # la app arranca aunque un índice falle
+        except Exception as e:
             log.error("No se pudo crear índice %s %s: %s", coleccion, claves, e)

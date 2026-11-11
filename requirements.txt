@@ -5,7 +5,9 @@ pydantic
 reportlab
 jinja2
 gunicorn
-bcrypt
+bcrypt==3.2.2
+certifi
+dnspython
 python-multipart
 pytz
 pyjwt
