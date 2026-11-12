@@ -162,18 +162,35 @@ async function guardarProducto(e) {
     }
 }
 
+/* Costo de un producto = café (costo/libra ÷ 500 × gramaje) + bolsa + etiqueta.
+   250g y 500g llevan bolsa + etiqueta; 2500g solo etiqueta (la bolsa la asume el proveedor). */
+function costoProductoDetalle(prod, resumenEmp) {
+    const g = Number(prod.gramaje) || 0;
+    const emp = k => Number(resumenEmp?.[k]?.costo_unitario) || 0;
+    const cafe = g * ((Number(prod.costo_por_libra) || 0) / 500.0);
+    let bolsa = 0, etiqueta = 0;
+    if (g === 250) { bolsa = emp('bolsa_250g'); etiqueta = emp('etiqueta_250g'); }
+    else if (g === 500) { bolsa = emp('bolsa_500g'); etiqueta = emp('etiqueta_500g'); }
+    else if (g === 2500) { etiqueta = emp('etiqueta_500g'); }
+    return { cafe, bolsa, etiqueta, total: Math.round(cafe + bolsa + etiqueta) };
+}
+
 async function cargarProductos() {
     try {
-        const res = await fetch('/api/productos');
+        const [res, resEmp] = await Promise.all([fetch('/api/productos'), fetch('/api/empaques/resumen')]);
         productosCache = await res.json();
+        const resumenEmp = resEmp.ok ? await resEmp.json() : {};
         ordenarProductosArray(productosCache);
 
         renderTablaPaginada('tabla-productos', productosCache, p => {
             const pId = p.id || p._id || '';
+            const c = costoProductoDetalle(p, resumenEmp);
+            const detalle = `Café: ${fmtCOP(c.cafe)} | Bolsa: ${fmtCOP(c.bolsa)} | Etiqueta: ${fmtCOP(c.etiqueta)}`;
             return `<tr>
                 <td><input type="text" id="edit-nom-${pId}" value="${p.nombre}" style="width: 180px;"></td>
                 <td>${p.gramaje || 0}g</td>
                 <td><input type="number" id="edit-prec-${pId}" value="${p.precio_venta || 0}" style="width: 120px;"></td>
+                <td title="${detalle}"><strong>${fmtCOP(c.total)}</strong></td>
                 <td>
                     <button class="btn-gold" style="padding: 4px 8px;" onclick="guardarEdicionProducto('${pId}')">✏️ Guardar</button>
                     <button class="btn-danger" style="padding: 4px 8px;" onclick="eliminarProducto('${pId}')">❌</button>

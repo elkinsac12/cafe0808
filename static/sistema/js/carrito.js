@@ -36,20 +36,9 @@ async function aplicarPreciosAlCostoCarrito(modo = 'venta') {
 
         targetCarrito.forEach(item => {
             const prod = productosCache.find(p => String(p.id || p._id) === String(item.producto_id));
-            const costoLibra = prod ? (prod.costo_por_libra || 0) : 0;
-            const costoGramo = costoLibra / 500.0;
-            const costoCafeUnitario = (item.gramaje || 0) * costoGramo;
-
-            let costoEmpaqueUnitario = 0;
-            if (item.gramaje === 250) {
-                costoEmpaqueUnitario = (resumenEmp["bolsa_250g"]?.costo_unitario || 0) + (resumenEmp["etiqueta_250g"]?.costo_unitario || 0);
-            } else if (item.gramaje === 500) {
-                costoEmpaqueUnitario = (resumenEmp["bolsa_500g"]?.costo_unitario || 0) + (resumenEmp["etiqueta_500g"]?.costo_unitario || 0);
-            } else if (item.gramaje === 2500) {
-                costoEmpaqueUnitario = (resumenEmp["etiqueta_500g"]?.costo_unitario || 0);
-            }
-
-            const costoTotalUnitario = Math.round(costoCafeUnitario + costoEmpaqueUnitario);
+            const costoTotalUnitario = costoProductoDetalle(
+                { gramaje: item.gramaje, costo_por_libra: prod ? prod.costo_por_libra : 0 }, resumenEmp
+            ).total;
             item.precio_unitario = costoTotalUnitario;
             item.subtotal = Math.max(0, (costoTotalUnitario * item.cantidad) - ((item.descuento || 0) * item.cantidad));
         });
