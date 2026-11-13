@@ -78,7 +78,8 @@ def listar_ventas(user: dict = Depends(get_current_user)):
     admin = es_admin(user)
     filtro = {} if admin else {"vendedor": user["username"]}
     salida = []
-    for v in db.ventas.find(filtro).sort("fecha", -1):
+    # Más reciente primero: por fecha y, dentro del mismo día, por hora de creación (y _id de respaldo)
+    for v in db.ventas.find(filtro).sort([("fecha", -1), ("creado_en", -1), ("_id", -1)]):
         v = fix_id(v)
         if v.get("tipo_pago") == "Efectivo":
             v["tipo_pago"] = "Contado"
