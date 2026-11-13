@@ -19,21 +19,32 @@ function iniciarBarra() {
 }
 
 function iniciarEnlaces() {
-  for (const id of ["lnkInstagram", "pieInstagram"]) $("#" + id).href = INSTAGRAM;
-  for (const id of ["lnkTiktok", "pieTiktok"]) $("#" + id).href = TIKTOK;
-  $("#anio").textContent = new Date().getFullYear();
+  // Asignamos de forma segura solo a los elementos que sí existen en el HTML
+  const lnkInsta = $("#lnkInstagram");
+  if (lnkInsta) lnkInsta.href = INSTAGRAM;
+  const pieInsta = $("#pieInstagram");
+  if (pieInsta) pieInsta.href = INSTAGRAM;
+
+  const lnkTik = $("#lnkTiktok");
+  if (lnkTik) lnkTik.href = TIKTOK;
+  const pieTik = $("#pieTiktok");
+  if (pieTik) pieTik.href = TIKTOK;
+
+  const anioEl = $("#anio");
+  if (anioEl) anioEl.textContent = new Date().getFullYear();
   
-  // Definimos la estructura exacta con una sola estrella central
   const textoCinta = "Envíos gratis en compras superiores a $150 mil pesos";
-  
-  // Creamos 8 repeticiones idénticas para cubrir la pantalla sin duplicaciones raras
   const itemsHTML = Array(8).fill(`<span>${textoCinta}</span>`).join("");
-  
-  $("#cinta").innerHTML = itemsHTML;
+  const cintaEl = $("#cinta");
+  if (cintaEl) cintaEl.innerHTML = itemsHTML;
 }
 
 function pintarPrecios() {
-  $("#precioDesde").textContent = moneda(precioMinimo());
+  const min = precioMinimo();
+  const el = $("#precioDesde");
+  if (el && min > 0) {
+    el.textContent = moneda(min);
+  }
   actualizarPreciosFichas();
   pintarCarrito();
 }
@@ -45,5 +56,7 @@ iniciarCarrito();
 iniciarExtras();
 pintarPrecios();
 
-// Precios vigentes del sistema (si hay cambios, se actualizan fichas y pedido)
-sincronizarPrecios().then(cambio => { if (cambio) pintarPrecios(); });
+// Sincroniza con el backend y actualiza los precios al terminar
+sincronizarPrecios().then(() => {
+  pintarPrecios();
+});
