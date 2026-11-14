@@ -42,20 +42,30 @@ function pintarCinta() {
 
 function pintarPrecios() {
   $("#precioDesde").textContent = moneda(precioMinimo());
-  actualizarPreciosFichas();
-  pintarCarrito();
+  try { actualizarPreciosFichas(); } catch (e) { console.error("[landing] fichas:", e); }
+  try { pintarCarrito(); } catch (e) { console.error("[landing] pedido:", e); }
 }
 
-iniciarBarra();
-iniciarEnlaces();
-iniciarFichas();
-iniciarCarrito();
-iniciarExtras();
-pintarPrecios();
+/* Cada parte arranca por separado: si una falla, se avisa en la consola (F12) y las demás
+   —sobre todo los precios— siguen funcionando. */
+const seguro = (nombre, fn) => {
+  try { fn(); } catch (e) { console.error(`[landing] falló "${nombre}":`, e); }
+};
+
+seguro("barra", iniciarBarra);
+seguro("enlaces", iniciarEnlaces);
+seguro("fichas", iniciarFichas);
+seguro("carrito", iniciarCarrito);
+seguro("extras", iniciarExtras);
+seguro("precios", pintarPrecios);
 
 // Idioma ESP / EN: al cambiarlo se vuelven a pintar la cinta, los precios y el pedido
-document.addEventListener("idioma", () => { pintarCinta(); pintarPrecios(); pintarEspeciales(); });
-iniciarIdioma();
+document.addEventListener("idioma", () => {
+  seguro("cinta", pintarCinta);
+  seguro("precios", pintarPrecios);
+  seguro("especiales", pintarEspeciales);
+});
+seguro("idioma", iniciarIdioma);
 
 // Precios vigentes del sistema (si hay cambios, se actualizan fichas y pedido)
 sincronizarPrecios().then(cambio => { if (cambio) pintarPrecios(); });
