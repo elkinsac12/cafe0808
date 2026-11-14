@@ -14,30 +14,33 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Big+Shoulders+Display:wght@700;800&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="/assets/img/bourbon-rosado.webp" type="image/webp">
-<link rel="stylesheet" href="/assets/css/landing.css?v=3.0.1">
-<script type="module" src="/assets/js/main.js?v=3.0.5"></script>
+<link rel="stylesheet" href="/assets/css/landing.css?v=3.0.2">
+<script type="module" src="/assets/js/main.js?v=3.0.6"></script>
 </head>
 <body>
 
 <!-- ============ Barra superior ============ -->
 <header class="barra" id="barra">
   <div class="contenedor barra-in">
-    <a class="marca" href="#inicio" aria-label="0808 Café, ir al inicio">
+    <a class="marca" href="#inicio" aria-label="0808 Café, ir al inicio" data-i18n-attr="aria-label">
       <picture><source srcset="/assets/img/logo-nav.webp" type="image/webp"><img src="/assets/img/logo-nav.png" alt="" width="39" height="44"></picture>
     </a>
     <ul class="nav" id="nav">
-      <li><a href="#cafes">Cafés y precios</a></li>
-      <li><a href="#test">Tu café ideal</a></li>
-      <li><a href="#molienda">Molienda</a></li>
-      <li><a href="#nosotros">Nosotros</a></li>
-      <li><a href="#contacto">Contacto</a></li>
+      <li><a href="#cafes" data-i18n>Cafés y precios</a></li>
+      <li><a href="#test" data-i18n>Tu café ideal</a></li>
+      <li><a href="#molienda" data-i18n>Molienda</a></li>
+      <li><a href="#nosotros" data-i18n>Nosotros</a></li>
+      <li><a href="#contacto" data-i18n>Contacto</a></li>
     </ul>
+    <button class="btn-idioma" id="btnIdioma" type="button" aria-label="Cambiar idioma" data-i18n-attr="aria-label" aria-pressed="false">
+      <span data-l="es" class="on">ESP</span><span class="sep" aria-hidden="true">-</span><span data-l="en">EN</span>
+    </button>
     <button class="btn-carrito" id="abrirCarrito" type="button" aria-haspopup="dialog" aria-controls="carrito">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
-      <span class="txt">Tu pedido</span>
-      <span class="num" id="numCarrito" aria-label="productos en el pedido">0</span>
+      <span class="txt" data-i18n>Tu pedido</span>
+      <span class="num" id="numCarrito" aria-label="productos en el pedido" data-i18n-attr="aria-label">0</span>
     </button>
-    <button class="menu-btn" id="menuBtn" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="nav">
+    <button class="menu-btn" id="menuBtn" type="button" aria-label="Abrir menú" data-i18n-attr="aria-label" aria-expanded="false" aria-controls="nav">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
     </button>
   </div>
@@ -48,12 +51,12 @@
 <section class="hero" id="inicio">
   <div class="contenedor hero-grid">
     <div class="hero-texto">
-      <h1>Café de altura, tostado con calma</h1>
-      <p class="hero-sub">Orígenes de Antioquia y Huila, cultivados entre 1.950 y 2.090 metros. Escoge entre grano y molido, y te lo hacermos llegar.</p>
-      <p class="hero-precio">Bolsas desde<strong id="precioDesde">—</strong></p>
+      <h1 data-i18n>Café de altura, tostado con calma</h1>
+      <p class="hero-sub" data-i18n>Orígenes de Antioquia y Huila, cultivados entre 1.950 y 2.090 metros. Escoge entre grano y molido, y te lo hacemos llegar.</p>
+      <p class="hero-precio"><span data-i18n>Bolsas desde</span><strong id="precioDesde">—</strong></p>
       <div class="hero-btns">
-        <a href="#cafes" class="btn btn-ambar">Ver cafés y precios</a>
-        <a href="#test" class="btn btn-linea">Encuentra el tuyo</a>
+        <a href="#cafes" class="btn btn-ambar" data-i18n>Ver cafés y precios</a>
+        <a href="#test" class="btn btn-linea" data-i18n>Encuentra el tuyo</a>
       </div>
     </div>
     <div class="bolsas" aria-hidden="true">
@@ -71,8 +74,8 @@
   <div class="contenedor">
     <div class="cafes-cabecera">
       <div>
-        <h2>Tres variedades.</h2>
-        <p class="intro">Marca en la etiqueta cómo lo quieres, elige el tamaño y agrégalo a tu pedido. Al final lo envías por WhatsApp y coordinamos pago y envío.</p>
+        <h2 data-i18n>Tres variedades.</h2>
+        <p class="intro" data-i18n>Marca en la etiqueta cómo lo quieres, elige el tamaño y agrégalo a tu pedido. Al final lo envías por WhatsApp y coordinamos pago y envío.</p>
       </div>
     </div>
     <div class="lista-fichas" id="fichas"></div>
@@ -82,14 +85,14 @@
 <!-- ============ Altura ============ -->
 <section class="altura" id="altura">
   <div class="contenedor">
-    <h2>Más altura, más dulzor</h2>
-    <p class="intro">En la montaña el grano madura despacio y concentra azúcares. Así se ven nuestros orígenes sobre el nivel del mar.</p>
-    <svg class="montana" id="montana" viewBox="0 0 900 340" role="img" aria-label="Altitud de los orígenes: Gigante, Huila, 1.950 msnm; Urrao, Antioquia, 2.090 msnm; Ciudad Bolívar, Antioquia, 1.950 msnm">
+    <h2 data-i18n>Más altura, más dulzor</h2>
+    <p class="intro" data-i18n>En la montaña el grano madura despacio y concentra azúcares. Así se ven nuestros orígenes sobre el nivel del mar.</p>
+    <svg class="montana" id="montana" viewBox="0 0 900 340" role="img" data-i18n-attr="aria-label" aria-label="Altitud de los orígenes: Gigante, Huila, 1.950 msnm; Urrao, Antioquia, 2.090 msnm; Ciudad Bolívar, Antioquia, 1.950 msnm">
       <path class="pico" d="M0 320 L120 230 L220 270 L330 150 L430 230 L540 96 L650 215 L760 150 L900 300 L900 340 L0 340 Z"/>
-      <g class="marca-alt"><line class="guia" x1="330" y1="150" x2="330" y2="70"/><text class="num" x="330" y="56" text-anchor="middle">1.950</text><text x="330" y="20" text-anchor="middle">Gigante, Huila</text></g>
-      <g class="marca-alt"><line class="guia" x1="540" y1="96" x2="540" y2="70"/><text class="num" x="540" y="56" text-anchor="middle">2.090</text><text x="540" y="20" text-anchor="middle">Urrao, Antioquia</text></g>
-      <g class="marca-alt"><line class="guia" x1="760" y1="150" x2="760" y2="110"/><text class="num" x="760" y="96" text-anchor="middle">1.950</text><text x="760" y="60" text-anchor="middle">Ciudad Bolívar, Antioquia</text></g>
-      <text x="14" y="300">msnm</text>
+      <g class="marca-alt"><line class="guia" x1="330" y1="150" x2="330" y2="70"/><text class="num" x="330" y="56" text-anchor="middle" data-i18n>1.950</text><text x="330" y="20" text-anchor="middle">Gigante, Huila</text></g>
+      <g class="marca-alt"><line class="guia" x1="540" y1="96" x2="540" y2="70"/><text class="num" x="540" y="56" text-anchor="middle" data-i18n>2.090</text><text x="540" y="20" text-anchor="middle">Urrao, Antioquia</text></g>
+      <g class="marca-alt"><line class="guia" x1="760" y1="150" x2="760" y2="110"/><text class="num" x="760" y="96" text-anchor="middle" data-i18n>1.950</text><text x="760" y="60" text-anchor="middle">Ciudad Bolívar, Antioquia</text></g>
+      <text x="14" y="300" data-i18n>msnm</text>
     </svg>
   </div>
 </section>
@@ -98,8 +101,8 @@
 <section class="test" id="test">
   <div class="contenedor test-grid">
     <div>
-      <h2>¿Cuál café es para ti?</h2>
-      <p class="intro">Tres preguntas sobre cómo tomas el café y te decimos cuál pedir.</p>
+      <h2 data-i18n>¿Cuál café es para ti?</h2>
+      <p class="intro" data-i18n>Tres preguntas sobre cómo tomas el café y te decimos cuál pedir.</p>
     </div>
     <div class="quiz-caja" id="quizCaja" aria-live="polite"></div>
   </div>
@@ -108,9 +111,9 @@
 <!-- ============ Molienda ============ -->
 <section id="molienda">
   <div class="contenedor">
-    <h2>¿Cómo lo preparas?</h2>
-    <p class="intro">Escoge tu método y te decimos qué molienda marcar en la etiqueta.</p>
-    <div class="metodos" id="metodos" role="tablist" aria-label="Métodos de preparación"></div>
+    <h2 data-i18n>¿Cómo lo preparas?</h2>
+    <p class="intro" data-i18n>Escoge tu método y te decimos qué molienda marcar en la etiqueta.</p>
+    <div class="metodos" id="metodos" role="tablist" aria-label="Métodos de preparación" data-i18n-attr="aria-label"></div>
     <div class="molienda-panel" role="tabpanel" aria-live="polite">
       <div class="polvo" id="polvo" aria-hidden="true"></div>
       <div>
@@ -125,18 +128,18 @@
 <!-- ============ Nosotros ============ -->
 <section id="nosotros">
   <div class="contenedor nosotros-grid">
-<img src="/assets/img/fundadores.jpeg" alt="Fundadores de 0808 Café de Especialidad" width="1600" height="1600" loading="lazy" style="width: 100%; aspect-ratio: 1/1; border-radius: 50%; object-fit: cover; object-position: 55% 35%; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); border: 2px solid rgba(245, 167, 11, 0.35); margin-top: 1.5rem;">
+<img src="/assets/img/fundadores.jpeg" alt="Fundadores de 0808 Café de Especialidad" data-i18n-attr="alt" width="1600" height="1600" loading="lazy" style="width: 100%; aspect-ratio: 1/1; border-radius: 50%; object-fit: cover; object-position: 55% 35%; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); border: 2px solid rgba(245, 167, 11, 0.35); margin-top: 1.5rem;">
     <div class="nosotros">
-      <h2>Acerca de Nosotros</h2>
-      <p style="text-align: justify;">En 0808 Café de Especialidad, nuestra pasión por el café nació en el calor del hogar en Barranquilla, donde el aroma mañanero definió nuestras memorias. En 2022, al instalarnos en Medellín, nos adentramos en el universo del café de especialidad; una fascinación constante que nos llevó a explorar perfiles de todas las regiones de Colombia y, finalmente, a dar el paso como fundadores.</p>
-      <p style="text-align: justify;">Sin necesidad de poseer una finca propia, asumimos con orgullo nuestro rol como curadores: recorremos las montañas colombianas en alianza directa con productores locales, evaluamos minuciosamente cada lote y seleccionamos únicamente granos con atributos excepcionales. Desarrollamos tuestes en pequeñas tandas para garantizar máxima frescura, tanto en hogares como en cafeterías aliadas.</p>
-      <p style="text-align: justify;">El nombre 0808 rinde homenaje al 8 de agosto, fecha de nacimiento de nuestra hija, y al símbolo de la abundancia. Representa nuestro compromiso fundamental: asegurar que en cada mesa abunde un café extraordinario y las razones para compartirlo.</p>
-      <p style="text-align: justify;">Actualmente operamos con presencia estratégica en el Valle de Aburrá y Barranquilla, con alcance y envíos a todo el territorio nacional y la proyección de llevar el café de especialidad Colombiano a mercados internacionales.</p>
-      <p style="text-align: justify; margin-top: 1.2rem; font-weight: 500;">Lidia Sajonero & Elkin Sierra Fundadores, 0808 Café de Especialidad</p>
+      <h2 data-i18n>Acerca de Nosotros</h2>
+      <p data-i18n style="text-align: justify;">En 0808 Café de Especialidad, nuestra pasión por el café nació en el calor del hogar en Barranquilla, donde el aroma mañanero definió nuestras memorias. En 2022, al instalarnos en Medellín, nos adentramos en el universo del café de especialidad; una fascinación constante que nos llevó a explorar perfiles de todas las regiones de Colombia y, finalmente, a dar el paso como fundadores.</p>
+      <p data-i18n style="text-align: justify;">Sin necesidad de poseer una finca propia, asumimos con orgullo nuestro rol como curadores: recorremos las montañas colombianas en alianza directa con productores locales, evaluamos minuciosamente cada lote y seleccionamos únicamente granos con atributos excepcionales. Desarrollamos tuestes en pequeñas tandas para garantizar máxima frescura, tanto en hogares como en cafeterías aliadas.</p>
+      <p data-i18n style="text-align: justify;">El nombre 0808 rinde homenaje al 8 de agosto, fecha de nacimiento de nuestra hija, y al símbolo de la abundancia. Representa nuestro compromiso fundamental: asegurar que en cada mesa abunde un café extraordinario y las razones para compartirlo.</p>
+      <p data-i18n style="text-align: justify;">Actualmente operamos con presencia estratégica en el Valle de Aburrá y Barranquilla, con alcance y envíos a todo el territorio nacional y la proyección de llevar el café de especialidad Colombiano a mercados internacionales.</p>
+      <p data-i18n style="text-align: justify; margin-top: 1.2rem; font-weight: 500;">Lidia Sajonero & Elkin Sierra Fundadores, 0808 Café de Especialidad</p>
       <div class="datos">
-        <div><strong>3</strong><span>orígenes</span></div>
-        <div><strong>2.090</strong><span>metros, el más alto</span></div>
-        <div><strong>100%</strong><span>colombiano</span></div>
+        <div><strong>3</strong><span data-i18n>orígenes</span></div>
+        <div><strong data-i18n>2.090</strong><span data-i18n>metros, el más alto</span></div>
+        <div><strong>100%</strong><span data-i18n>colombiano</span></div>
       </div>
     </div>
   </div>
@@ -145,8 +148,8 @@
 <!-- ============ Contacto ============ -->
 <section class="contacto" id="contacto">
   <div class="contenedor">
-    <h2>¿Dudas antes de pedir?</h2>
-    <p class="intro">Escríbenos y te ayudamos a elegir.</p>
+    <h2 data-i18n>¿Dudas antes de pedir?</h2>
+    <p class="intro" data-i18n>Escríbenos y te ayudamos a elegir.</p>
     <div class="contacto-btns">
       <a class="btn btn-wa" id="btnContacto" href="#" target="_blank" rel="noopener">WhatsApp</a>
       <a class="btn btn-linea" id="lnkInstagram" href="#" target="_blank" rel="noopener">
@@ -164,7 +167,7 @@
 
 <footer>
   <div class="contenedor pie">
-    <span>© <span id="anio">2026</span> 0808 Café de Especialidad. Hecho en Colombia.</span>
+    <span>© <span id="anio">2026</span> <span data-i18n>0808 Café de Especialidad. Hecho en Colombia.</span></span>
     <nav aria-label="Redes"><a id="pieInstagram" href="#" target="_blank" rel="noopener">Instagram</a><a id="pieTiktok" href="#" target="_blank" rel="noopener">TikTok</a></nav>
   </div>
 </footer>
@@ -173,23 +176,23 @@
 <div class="velo" id="velo"></div>
 <aside class="carrito" id="carrito" role="dialog" aria-modal="true" aria-labelledby="carritoTitulo" aria-hidden="true">
   <div class="carrito-cab">
-    <h2 id="carritoTitulo">Tu pedido</h2>
-    <button class="cerrar" id="cerrarCarrito" type="button" aria-label="Cerrar pedido">
+    <h2 id="carritoTitulo" data-i18n>Tu pedido</h2>
+    <button class="cerrar" id="cerrarCarrito" type="button" aria-label="Cerrar pedido" data-i18n-attr="aria-label">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
   </div>
   <div class="carrito-cuerpo" id="carritoCuerpo"></div>
   <div class="carrito-pie" id="carritoPie">
-    <div class="total"><span>Total</span><strong id="carritoTotal">$0</strong></div>
-    <p class="nota">El envío se cotiza por WhatsApp según tu ciudad.</p>
-    <a class="btn btn-wa" id="enviarPedido" href="#" target="_blank" rel="noopener">Enviar pedido por WhatsApp</a>
-    <button class="vaciar" id="vaciarCarrito" type="button">Vaciar pedido</button>
+    <div class="total"><span data-i18n>Total</span><strong id="carritoTotal">$0</strong></div>
+    <p class="nota" data-i18n>El envío se cotiza por WhatsApp según tu ciudad.</p>
+    <a class="btn btn-wa" id="enviarPedido" href="#" target="_blank" rel="noopener" data-i18n>Enviar pedido por WhatsApp</a>
+    <button class="vaciar" id="vaciarCarrito" type="button" data-i18n>Vaciar pedido</button>
   </div>
 </aside>
 
 <!-- ============ Foto ampliada ============ -->
-<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Foto de la bolsa">
-  <button class="cerrar" id="modalCerrar" type="button" aria-label="Cerrar foto">
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Foto de la bolsa" data-i18n-attr="aria-label">
+  <button class="cerrar" id="modalCerrar" type="button" aria-label="Cerrar foto" data-i18n-attr="aria-label">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
   </button>
   <img id="modalImg" src="data:," alt="">

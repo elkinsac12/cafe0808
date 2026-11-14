@@ -1,58 +1,59 @@
 /* Fichas de producto con forma de etiqueta: el cliente marca molienda y tostión
    en los mismos círculos que trae la etiqueta impresa. */
 import { PRODUCTOS, TAMANOS, TAMANO_INICIAL, MOLIENDAS, TOSTIONES, TOSTION_FIJA, MAX_POR_LINEA } from "./config.js";
-import { $, $$, esc, img } from "./util.js";
+import { $, $$, esc, img, moneda } from "./util.js";
+import { t } from "./i18n.js";
 import { precioDe } from "./precios.js";
 import { agregar } from "./carrito.js";
 
 const circulos = (grupo, lista, marcado, id, dosCol) => `
   <fieldset class="circulos${dosCol ? " dos-col" : ""}">
-    <legend>${grupo === "molienda" ? "Molienda" : "Tostión"}</legend>
+    <legend data-i18n>${grupo === "molienda" ? "Molienda" : "Tostión"}</legend>
     ${lista.map(v => {
       const bloqueado = grupo === "tostion" && v !== TOSTION_FIJA;   // tostión fija: solo Medio
-      return `<label class="circulo${bloqueado ? " bloqueado" : ""}"><input type="radio" name="${grupo}-${id}" value="${esc(v)}"${v === marcado ? " checked" : ""}${bloqueado ? " disabled" : ""}><i></i>${esc(v)}</label>`;
+      return `<label class="circulo${bloqueado ? " bloqueado" : ""}"><input type="radio" name="${grupo}-${id}" value="${esc(v)}"${v === marcado ? " checked" : ""}${bloqueado ? " disabled" : ""}><i></i><span data-i18n>${esc(v)}</span></label>`;
     }).join("")}
   </fieldset>`;
 
 function ficha(p) {
   const nombreCompleto = p.subtitulo ? `${p.nombre} ${p.subtitulo}` : p.nombre;
   return `<article class="ficha" data-id="${p.id}" aria-labelledby="t-${p.id}">
-    <figure class="ficha-foto" tabindex="0" role="button" aria-label="Ampliar foto de ${esc(nombreCompleto)}" data-zoom="${p.id}">
+    <figure class="ficha-foto" tabindex="0" role="button" aria-label="${esc(t("Ampliar foto de {n}", { n: nombreCompleto }))}" data-zoom="${p.id}">
       <picture>
         <source srcset="${img(p.img, { sm: true })} 448w, ${img(p.img)} 896w" sizes="(max-width: 860px) 90vw, 42vw" type="image/webp">
-        <img src="/assets/img/${p.img}.jpg" alt="Bolsa negra de café 0808 ${esc(nombreCompleto)} con etiqueta dorada" width="896" height="1195" loading="lazy" decoding="async">
+        <img src="/assets/img/${p.img}.jpg" alt="${esc(t("Bolsa negra de café 0808 {n} con etiqueta dorada", { n: nombreCompleto }))}" width="896" height="1195" loading="lazy" decoding="async">
       </picture>
-      <span class="lupa">Ver etiqueta</span>
+      <span class="lupa" data-i18n>Ver etiqueta</span>
     </figure>
 
     <div class="etiqueta">
       <div class="et-fila et-top">
-        <div class="et-campo"><small>Origen</small><b>${esc(p.origen)}</b></div>
-        <div class="et-campo"><small>Proceso</small><b>${esc(p.proceso)}</b><span>${esc(p.acidez)}</span></div>
+        <div class="et-campo"><small data-i18n>Origen</small><b data-i18n>${esc(p.origen)}</b></div>
+        <div class="et-campo"><small data-i18n>Proceso</small><b data-i18n>${esc(p.proceso)}</b><span data-i18n>${esc(p.acidez)}</span></div>
       </div>
       <div class="et-variedad">
-        <div class="et-campo"><small>Variedad</small></div>
+        <div class="et-campo"><small data-i18n>Variedad</small></div>
         <h3 id="t-${p.id}">${esc(p.nombre)}</h3>
-        ${p.subtitulo ? `<p>${esc(p.subtitulo)}</p>` : ""}
+        ${p.subtitulo ? `<p data-i18n>${esc(p.subtitulo)}</p>` : ""}
       </div>
       <div class="et-fila et-detalle">
         <div>${circulos("molienda", MOLIENDAS, "Grano", p.id, true)}</div>
-        <div class="et-campo"><small>Aroma</small><span>${esc(p.aroma)}</span><small class="mt">Sabor</small><span>${esc(p.sabor)}</span></div>
-        <div class="et-campo"><small>msnm</small><b class="et-msnm">${p.msnm.toLocaleString("es-CO")}</b></div>
+        <div class="et-campo"><small data-i18n>Aroma</small><span data-i18n>${esc(p.aroma)}</span><small class="mt" data-i18n>Sabor</small><span data-i18n>${esc(p.sabor)}</span></div>
+        <div class="et-campo"><small data-i18n>msnm</small><b class="et-msnm" data-i18n>${p.msnm.toLocaleString("es-CO")}</b></div>
         <div>${circulos("tostion", TOSTIONES, TOSTION_FIJA, p.id, false)}</div>
       </div>
       <div class="et-pie">
-        <div class="tamanos" role="radiogroup" aria-label="Tamaño de bolsa">
+        <div class="tamanos" role="radiogroup" aria-label="Tamaño de bolsa" data-i18n-attr="aria-label">
           ${TAMANOS.map(t => `<label><input type="radio" name="tamano-${p.id}" value="${t}"${t === TAMANO_INICIAL ? " checked" : ""}><span>${t}g</span></label>`).join("")}
         </div>
-        <div class="precio" aria-live="polite"><strong data-precio>${"$" + precioDe(p.id, TAMANO_INICIAL).toLocaleString("es-CO")}</strong><small data-por>bolsa de ${TAMANO_INICIAL}g</small></div>
+        <div class="precio" aria-live="polite"><strong data-precio>${moneda(precioDe(p.id, TAMANO_INICIAL))}</strong><small data-por>${t("bolsa de {t}g", { t: TAMANO_INICIAL })}</small></div>
         <div class="et-acciones">
-          <div class="paso" role="group" aria-label="Cantidad">
-            <button type="button" data-d="-1" aria-label="Una menos">−</button>
+          <div class="paso" role="group" aria-label="Cantidad" data-i18n-attr="aria-label">
+            <button type="button" data-d="-1" aria-label="Una menos" data-i18n-attr="aria-label">−</button>
             <output data-cant>1</output>
-            <button type="button" data-d="1" aria-label="Una más">+</button>
+            <button type="button" data-d="1" aria-label="Una más" data-i18n-attr="aria-label">+</button>
           </div>
-          <button type="button" class="btn btn-tinta" data-agregar>Agregar al pedido</button>
+          <button type="button" class="btn btn-tinta" data-agregar data-i18n>Agregar al pedido</button>
         </div>
       </div>
     </div>
@@ -63,16 +64,27 @@ const valor = (art, nombre) => $(`input[name="${nombre}-${art.dataset.id}"]:chec
 
 export function actualizarPreciosFichas() {
   $$(".ficha").forEach(art => {
-    const t = Number(valor(art, "tamano"));
-    const precio = precioDe(art.dataset.id, t);
-    $("[data-precio]", art).textContent = precio > 0 ? "$" + precio.toLocaleString("es-CO") : "Consultar";
-    $("[data-por]", art).textContent = `bolsa de ${t}g`;
+    const tam = Number(valor(art, "tamano"));
+    const precio = precioDe(art.dataset.id, tam);
+    $("[data-precio]", art).textContent = precio > 0 ? moneda(precio) : t("Consultar");
+    $("[data-por]", art).textContent = t("bolsa de {t}g", { t: tam });
+  });
+}
+
+function traducirAtributosFichas() {
+  $$(".ficha").forEach(art => {
+    const p = PRODUCTOS.find(x => x.id === art.dataset.id);
+    if (!p) return;
+    const nombre = p.subtitulo ? `${p.nombre} ${p.subtitulo}` : p.nombre;
+    $(".ficha-foto", art).setAttribute("aria-label", t("Ampliar foto de {n}", { n: nombre }));
+    $(".ficha-foto img", art).alt = t("Bolsa negra de café 0808 {n} con etiqueta dorada", { n: nombre });
   });
 }
 
 export function iniciarFichas() {
   const cont = $("#fichas");
   cont.innerHTML = PRODUCTOS.map(ficha).join("");
+  document.addEventListener("idioma", traducirAtributosFichas);
 
   cont.addEventListener("change", e => {
     if (e.target.name?.startsWith("tamano-")) actualizarPreciosFichas();
@@ -109,7 +121,7 @@ export function iniciarFichas() {
     const p = PRODUCTOS.find(x => x.id === id);
     foco = document.activeElement;
     $("#modalImg").src = `/assets/img/${p.img}.webp`;
-    $("#modalImg").alt = `Etiqueta de ${p.nombre}`;
+    $("#modalImg").alt = t("Etiqueta de {n}", { n: p.nombre });
     modal.classList.add("abierto");
     $("#modalCerrar").focus();
   };

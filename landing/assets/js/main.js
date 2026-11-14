@@ -5,6 +5,7 @@ import { precioMinimo, sincronizarPrecios } from "./precios.js";
 import { iniciarCarrito, pintar as pintarCarrito } from "./carrito.js";
 import { iniciarFichas, actualizarPreciosFichas } from "./fichas.js";
 import { iniciarExtras } from "./extras.js";
+import { t, iniciarIdioma } from "./i18n.js";
 
 document.documentElement.classList.add("js");
 
@@ -19,32 +20,21 @@ function iniciarBarra() {
 }
 
 function iniciarEnlaces() {
-  // Asignamos de forma segura solo a los elementos que sí existen en el HTML
-  const lnkInsta = $("#lnkInstagram");
-  if (lnkInsta) lnkInsta.href = INSTAGRAM;
-  const pieInsta = $("#pieInstagram");
-  if (pieInsta) pieInsta.href = INSTAGRAM;
-
-  const lnkTik = $("#lnkTiktok");
-  if (lnkTik) lnkTik.href = TIKTOK;
-  const pieTik = $("#pieTiktok");
-  if (pieTik) pieTik.href = TIKTOK;
-
-  const anioEl = $("#anio");
-  if (anioEl) anioEl.textContent = new Date().getFullYear();
+  for (const id of ["lnkInstagram", "pieInstagram"]) $("#" + id).href = INSTAGRAM;
+  for (const id of ["lnkTiktok", "pieTiktok"]) $("#" + id).href = TIKTOK;
+  $("#anio").textContent = new Date().getFullYear();
   
-  const textoCinta = "Envíos gratis en compras superiores a $150 mil pesos";
-  const itemsHTML = Array(8).fill(`<span>${textoCinta}</span>`).join("");
-  const cintaEl = $("#cinta");
-  if (cintaEl) cintaEl.innerHTML = itemsHTML;
+  pintarCinta();
+}
+
+function pintarCinta() {
+  const textoCinta = t("Envíos gratis en compras superiores a $150 mil pesos");
+  // 8 repeticiones idénticas para cubrir la pantalla sin duplicaciones raras
+  $("#cinta").innerHTML = Array(8).fill(`<span>${textoCinta}</span>`).join("");
 }
 
 function pintarPrecios() {
-  const min = precioMinimo();
-  const el = $("#precioDesde");
-  if (el && min > 0) {
-    el.textContent = moneda(min);
-  }
+  $("#precioDesde").textContent = moneda(precioMinimo());
   actualizarPreciosFichas();
   pintarCarrito();
 }
@@ -56,7 +46,9 @@ iniciarCarrito();
 iniciarExtras();
 pintarPrecios();
 
-// Sincroniza con el backend y actualiza los precios al terminar
-sincronizarPrecios().then(() => {
-  pintarPrecios();
-});
+// Idioma ESP / EN: al cambiarlo se vuelven a pintar la cinta, los precios y el pedido
+document.addEventListener("idioma", () => { pintarCinta(); pintarPrecios(); });
+iniciarIdioma();
+
+// Precios vigentes del sistema (si hay cambios, se actualizan fichas y pedido)
+sincronizarPrecios().then(cambio => { if (cambio) pintarPrecios(); });

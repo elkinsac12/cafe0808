@@ -89,6 +89,14 @@ section { padding: clamp(72px, 10vw, 128px) 0; }
 }
 .btn-carrito .num.salta { animation: salta .45s; }
 @keyframes salta { 40% { transform: scale(1.35); } }
+.btn-idioma {
+  display: inline-flex; align-items: center; gap: 5px; height: 42px; padding: 0 13px; border-radius: 999px;
+  border: 1.5px solid var(--linea); color: var(--papel-2); font-size: .78rem; font-weight: 700; letter-spacing: .6px;
+  transition: border-color .2s, color .2s;
+}
+.btn-idioma:hover { border-color: var(--etiqueta); }
+.btn-idioma .on { color: var(--etiqueta); }
+.btn-idioma .sep { opacity: .5; }
 .menu-btn { display: none; width: 42px; height: 42px; border-radius: 50%; border: 1.5px solid var(--linea); }
 .menu-btn svg { width: 20px; height: 20px; margin: auto; }
 
@@ -102,6 +110,8 @@ section { padding: clamp(72px, 10vw, 128px) 0; }
   .nav.abierta { transform: none; }
   .nav a { display: block; padding: 14px 0; font-size: 1.1rem; color: var(--papel); border-bottom: 1px solid var(--linea); }
   .btn-carrito .txt { display: none; }
+  .barra-in { gap: 10px; }
+  .btn-idioma { padding: 0 10px; }
 }
 
 /* ---------- Hero ---------- */

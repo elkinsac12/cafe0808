@@ -1,11 +1,12 @@
 /* Utilidades compartidas */
 import { WHATSAPP } from "./config.js";
+import { locale } from "./i18n.js";
 
 export const $ = (s, r = document) => r.querySelector(s);
 export const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 export const reducido = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-export const moneda = n => "$" + Math.round(n || 0).toLocaleString("es-CO");
+export const moneda = n => "$" + Math.round(n || 0).toLocaleString(locale());
 export const waURL = txt => `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(txt)}`;
 
 export function esc(v) {

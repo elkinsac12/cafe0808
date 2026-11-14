@@ -2,6 +2,7 @@
 import { PRODUCTOS, TAMANO_INICIAL, TOSTION_FIJA } from "./config.js";
 import { $, $$, esc, img } from "./util.js";
 import { agregar } from "./carrito.js";
+import { t } from "./i18n.js";
 
 /* ---------------- Test ---------------- */
 const PREGUNTAS = [
@@ -32,23 +33,23 @@ function iniciarTest() {
   const pregunta = () => {
     const q = PREGUNTAS[paso];
     caja.innerHTML = `<div class="progreso"><i style="width:${(paso / PREGUNTAS.length) * 100}%"></i></div>
-      <p class="quiz-paso">Pregunta ${paso + 1} de ${PREGUNTAS.length}</p>
-      <p class="quiz-q">${esc(q.q)}</p>
-      <div class="quiz-ops">${q.o.map((o, i) => `<button type="button" data-i="${i}">${esc(o[0])}</button>`).join("")}</div>`;
+      <p class="quiz-paso">${t("Pregunta {a} de {b}", { a: paso + 1, b: PREGUNTAS.length })}</p>
+      <p class="quiz-q">${esc(t(q.q))}</p>
+      <div class="quiz-ops">${q.o.map((o, i) => `<button type="button" data-i="${i}">${esc(t(o[0]))}</button>`).join("")}</div>`;
     requestAnimationFrame(() => { $(".progreso i", caja).style.width = ((paso + 1) / PREGUNTAS.length) * 100 + "%"; });
   };
   const resultado = () => {
     const id = Object.entries(puntos).sort((a, b) => b[1] - a[1])[0][0];
     const p = PRODUCTOS.find(x => x.id === id);
     caja.innerHTML = `<div class="quiz-res">
-      <img src="${img(p.img, { sm: true })}" alt="Bolsa de ${esc(p.nombre)}" width="140" height="187">
+      <img src="${img(p.img, { sm: true })}" alt="${esc(t("Bolsa de {n}", { n: p.nombre }))}" width="140" height="187">
       <div>
-        <p class="quiz-paso">Tu café es</p>
+        <p class="quiz-paso">${t("Tu café es")}</p>
         <h3>${esc(p.nombre)}</h3>
-        <p>${esc(MOTIVO[id])}</p>
+        <p>${esc(t(MOTIVO[id]))}</p>
         <div class="acciones">
-          <button class="btn btn-ambar" type="button" data-agregar="${id}">Agregar ${TAMANO_INICIAL}g al pedido</button>
-          <button class="btn btn-linea" type="button" data-repetir>Repetir</button>
+          <button class="btn btn-ambar" type="button" data-agregar="${id}">${t("Agregar {t}g al pedido", { t: TAMANO_INICIAL })}</button>
+          <button class="btn btn-linea" type="button" data-repetir>${t("Repetir")}</button>
         </div>
       </div>
     </div>`;
@@ -68,6 +69,8 @@ function iniciarTest() {
     const add = e.target.closest("[data-agregar]");
     if (add) agregar({ id: add.dataset.agregar, tamano: TAMANO_INICIAL, molienda: "Grano", tostion: TOSTION_FIJA, cant: 1 });
   });
+  // Al cambiar de idioma se vuelve a dibujar la pantalla actual del test, sin perder el avance
+  document.addEventListener("idioma", () => { paso < PREGUNTAS.length ? pregunta() : resultado(); });
   inicio();
 }
 
@@ -75,14 +78,18 @@ function iniciarTest() {
 const METODOS = [
   { n: "Prensa francesa", g: "Gruesa", t: "4 minutos de infusión", tip: "Cuerpo pleno y textura aceitosa. Una molienda gruesa evita que quede turbio y amargo.", size: 9 },
   { n: "V60 / Chemex", g: "Media", t: "2 a 3 minutos", tip: "Resalta las notas florales y frutales. Ideal para el Chiroso y el Bourbon Rosado.", size: 6 },
-  { n: "Cafetera de goteo", g: "Media a gruesa", t: "Indicado en manual de la cafetera", tip: "Práctica para varias tazas. Una molienda media a gruesa da un café equilibrado.", size: 6 },
-  { n: "Moka / Greca", g: "Fina a media", t: "4 a 5 minutos", tip: "Ideal para un café intenso y con carácter. Pídela fina a media, así conservas el dulzor y evitas el amargor.", size: 3.5 },
-  { n: "Espresso", g: "Fina", t: "25 a 30 segundos", tip: "Para un espresso de cuerpo pleno y dulzor marcado. Calibra la molienda según tu equipo; el Blend se integra a la perfección con la leche.", size: 2.6 }
+  { n: "Cafetera de goteo", g: "Media", t: "5 a 6 minutos", tip: "Práctica para varias tazas. Una molienda media da un café equilibrado.", size: 6 },
+  { n: "Moka / greca", g: "Fina", t: "4 a 5 minutos", tip: "Intenso y concentrado. Fina, pero sin llegar a polvo, para que no se amargue.", size: 3.5 },
+  { n: "Espresso", g: "Fina", t: "25 a 30 segundos", tip: "Pide molienda fina y ajusta según tu máquina. El Blend se lleva muy bien con leche.", size: 2.6 }
 ];
 
 function iniciarMolienda() {
   const cont = $("#metodos"), polvo = $("#polvo");
-  cont.innerHTML = METODOS.map((m, i) => `<button type="button" role="tab" aria-selected="${i === 0}" data-i="${i}">${esc(m.n)}</button>`).join("");
+  let activo = 0;
+  const botones = () => {
+    cont.innerHTML = METODOS.map((m, i) => `<button type="button" role="tab" aria-selected="${i === activo}" data-i="${i}">${esc(t(m.n))}</button>`).join("");
+  };
+  botones();
   const piezas = Array.from({ length: 70 }, () => {
     const el = document.createElement("i");
     polvo.appendChild(el);
@@ -90,9 +97,10 @@ function iniciarMolienda() {
   });
   const pintar = i => {
     const m = METODOS[i];
-    $("#mNombre").textContent = m.g === "Grano" ? "Pídelo en grano" : "Molienda " + m.g.toLowerCase();
-    $("#mTiempo").textContent = `${m.n}: ${m.t}`;
-    $("#mTip").textContent = m.tip;
+    activo = i;
+    $("#mNombre").textContent = t("Molienda " + m.g.toLowerCase());
+    $("#mTiempo").textContent = `${t(m.n)}: ${t(m.t)}`;
+    $("#mTip").textContent = t(m.tip);
     const W = polvo.clientWidth, H = polvo.clientHeight;
     const cuantos = Math.min(70, Math.round(900 / (m.size * m.size)) + 6);
     piezas.forEach((p, k) => {
@@ -116,6 +124,14 @@ function iniciarMolienda() {
     tRes = setTimeout(() => pintar(+$('[aria-selected="true"]', cont).dataset.i), 150);
   });
   pintar(0);
+  // Al cambiar de idioma se rotulan de nuevo los métodos y el panel (sin mover las partículas)
+  document.addEventListener("idioma", () => {
+    botones();
+    const m = METODOS[activo];
+    $("#mNombre").textContent = t("Molienda " + m.g.toLowerCase());
+    $("#mTiempo").textContent = `${t(m.n)}: ${t(m.t)}`;
+    $("#mTip").textContent = t(m.tip);
+  });
 }
 
 /* ---------------- Gráfico de altura ---------------- */

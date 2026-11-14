@@ -3,6 +3,7 @@
 import { PRODUCTOS, TAMANOS, MOLIENDAS, TOSTION_FIJA, MAX_POR_LINEA } from "./config.js";
 import { $, aviso, esc, img, local, moneda, waURL } from "./util.js";
 import { precioDe } from "./precios.js";
+import { t } from "./i18n.js";
 
 const CLAVE = "pedido_0808_v3";
 const CLAVE_DATOS = "pedido_0808_datos";
@@ -36,14 +37,14 @@ export function agregar(item) {
   guardar();
   const num = $("#numCarrito");
   num.classList.remove("salta"); void num.offsetWidth; num.classList.add("salta");
-  aviso(`${producto(item.id).nombre} ${item.tamano}g agregado`, { texto: "Ver pedido", fn: abrir });
+  aviso(t("{n} {t}g agregado", { n: producto(item.id).nombre, t: item.tamano }), { texto: t("Ver pedido"), fn: abrir });
 }
 
 function quitar(i) {
   const [quitada] = lineas.splice(i, 1);
   guardar();
-  aviso(`Quitaste ${producto(quitada.id).nombre}`, {
-    texto: "Deshacer",
+  aviso(t("Quitaste {n}", { n: producto(quitada.id).nombre }), {
+    texto: t("Deshacer"),
     fn: () => { lineas.splice(Math.min(i, lineas.length), 0, quitada); guardar(); }
   });
 }
@@ -63,16 +64,16 @@ function editar(i, campo, valor) {
 }
 
 function mensaje() {
-  if (!lineas.length) return "Hola 0808 Café ☕ Quiero conocer más sobre sus cafés de especialidad.";
+  if (!lineas.length) return t("Hola 0808 Café ☕ Quiero conocer más sobre sus cafés de especialidad.");
   const filas = lineas.map(l => {
     const p = producto(l.id);
-    return `• ${l.cant} x ${p.nombre} ${l.tamano}g — Molienda: ${l.molienda}, Tostión: ${l.tostion} — ${moneda(precioDe(l.id, l.tamano) * l.cant)}`;
+    return `• ${l.cant} x ${p.nombre} ${l.tamano}g — ${t("Molienda")}: ${t(l.molienda)}, ${t("Tostión")}: ${t(l.tostion)} — ${moneda(precioDe(l.id, l.tamano) * l.cant)}`;
   });
-  let txt = "Hola 0808 Café ☕ Quiero hacer este pedido:\n\n" + filas.join("\n") + `\n\nTotal: ${moneda(total())} (sin envío)`;
+  let txt = t("Hola 0808 Café ☕ Quiero hacer este pedido:") + "\n\n" + filas.join("\n") + "\n\n" + t("Total: {x} (sin envío)", { x: moneda(total()) });
   const nombre = (datos.nombre || "").trim(), ciudad = (datos.ciudad || "").trim();
-  if (nombre) txt += `\nNombre: ${nombre}`;
-  if (ciudad) txt += `\nCiudad / barrio: ${ciudad}`;
-  return txt + "\n\n¿Cómo coordinamos el pago y el envío?";
+  if (nombre) txt += `\n${t("Nombre")}: ${nombre}`;
+  if (ciudad) txt += `\n${t("Ciudad / barrio")}: ${ciudad}`;
+  return txt + "\n\n" + t("¿Cómo coordinamos el pago y el envío?");
 }
 
 const opciones = (lista, actual, fmt = v => v) =>
@@ -85,15 +86,15 @@ export function pintar() {
   cuenta.textContent = n;
   cuenta.classList.toggle("on", n > 0);
   const grano = $("#grano");
-  grano.setAttribute("aria-label", n ? `Ver tu pedido (${n})` : "Escribir por WhatsApp");
+  grano.setAttribute("aria-label", n ? t("Ver tu pedido ({n})", { n }) : t("Escribir por WhatsApp"));
   grano.href = waURL(mensaje());
-  $("#btnContacto").href = waURL(lineas.length ? mensaje() : "Hola 0808 Café ☕ Tengo una pregunta sobre sus cafés.");
+  $("#btnContacto").href = waURL(lineas.length ? mensaje() : t("Hola 0808 Café ☕ Tengo una pregunta sobre sus cafés."));
 
   const cuerpo = $("#carritoCuerpo");
   $("#carritoPie").hidden = !lineas.length;
   if (!lineas.length) {
-    cuerpo.innerHTML = `<div class="vacio"><p>Tu pedido está vacío. Elige un café, marca molienda y tostión, y agrégalo.</p>
-      <a class="btn btn-tinta" href="#cafes" data-cerrar>Ver cafés</a></div>`;
+    cuerpo.innerHTML = `<div class="vacio"><p>${t("Tu pedido está vacío. Elige un café, marca molienda y tostión, y agrégalo.")}</p>
+      <a class="btn btn-tinta" href="#cafes" data-cerrar>${t("Ver cafés")}</a></div>`;
     return;
   }
 
@@ -104,23 +105,23 @@ export function pintar() {
       <div>
         <div class="linea-top"><h3>${esc(p.nombre)}</h3><span class="linea-precio">${moneda(precioDe(l.id, l.tamano) * l.cant)}</span></div>
         <div class="linea-ops">
-          <label>Tamaño<select data-campo="tamano" aria-label="Tamaño de ${esc(p.nombre)}">${opciones(TAMANOS, l.tamano, t => `${t}g`)}</select></label>
-          <label>Molienda<select data-campo="molienda" aria-label="Molienda de ${esc(p.nombre)}">${opciones(MOLIENDAS, l.molienda)}</select></label>
-          <label>Tostión<select data-campo="tostion" aria-label="Tostión de ${esc(p.nombre)}">${opciones([TOSTION_FIJA], TOSTION_FIJA)}</select></label>
+          <label>${t("Tamaño")}<select data-campo="tamano" aria-label="${esc(t("Tamaño de {n}", { n: p.nombre }))}">${opciones(TAMANOS, l.tamano, v => `${v}g`)}</select></label>
+          <label>${t("Molienda")}<select data-campo="molienda" aria-label="${esc(t("Molienda de {n}", { n: p.nombre }))}">${opciones(MOLIENDAS, l.molienda, v => t(v))}</select></label>
+          <label>${t("Tostión")}<select data-campo="tostion" aria-label="${esc(t("Tostión de {n}", { n: p.nombre }))}">${opciones([TOSTION_FIJA], TOSTION_FIJA, v => t(v))}</select></label>
         </div>
         <div class="linea-pie">
-          <div class="paso" role="group" aria-label="Cantidad de ${esc(p.nombre)}">
-            <button type="button" data-d="-1" aria-label="Quitar una">−</button>
+          <div class="paso" role="group" aria-label="${esc(t("Cantidad de {n}", { n: p.nombre }))}">
+            <button type="button" data-d="-1" aria-label="${t("Quitar una")}">−</button>
             <output aria-live="polite">${l.cant}</output>
-            <button type="button" data-d="1" aria-label="Agregar una">+</button>
+            <button type="button" data-d="1" aria-label="${t("Agregar una")}">+</button>
           </div>
-          <button type="button" class="quitar" data-quitar>Quitar</button>
+          <button type="button" class="quitar" data-quitar>${t("Quitar")}</button>
         </div>
       </div>
     </article>`;
   }).join("") + `<div class="carrito-datos">
-      <label>Tu nombre (opcional)<input id="pedNombre" maxlength="60" autocomplete="name" value="${esc(datos.nombre)}"></label>
-      <label>Ciudad o barrio (opcional)<input id="pedCiudad" maxlength="80" autocomplete="address-level2" value="${esc(datos.ciudad)}"></label>
+      <label>${t("Tu nombre (opcional)")}<input id="pedNombre" maxlength="60" autocomplete="name" value="${esc(datos.nombre)}"></label>
+      <label>${t("Ciudad o barrio (opcional)")}<input id="pedCiudad" maxlength="80" autocomplete="address-level2" value="${esc(datos.ciudad)}"></label>
     </div>`;
 
   $("#carritoTotal").textContent = moneda(total());
@@ -188,7 +189,7 @@ export function iniciarCarrito() {
     const copia = lineas;
     lineas = [];
     guardar();
-    aviso("Vaciaste el pedido", { texto: "Deshacer", fn: () => { lineas = copia; guardar(); } });
+    aviso(t("Vaciaste el pedido"), { texto: t("Deshacer"), fn: () => { lineas = copia; guardar(); } });
   });
   // El grano abre el pedido si hay productos; si no, va directo a WhatsApp
   $("#grano").addEventListener("click", e => {
