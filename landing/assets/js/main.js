@@ -1,6 +1,6 @@
 /* Arranque de la landing */
 import { INSTAGRAM, TIKTOK } from "./config.js";
-import { $, $$, moneda } from "./util.js";
+import { $, $$, moneda, waURL } from "./util.js";
 import { precioMinimo, sincronizarPrecios } from "./precios.js";
 import { iniciarCarrito, pintar as pintarCarrito } from "./carrito.js";
 import { iniciarFichas, actualizarPreciosFichas } from "./fichas.js";
@@ -27,6 +27,13 @@ function iniciarEnlaces() {
   pintarCinta();
 }
 
+/* Variedades bajo pedido: cada botón abre WhatsApp con el mensaje ya escrito, en el idioma elegido */
+function pintarEspeciales() {
+  $$("[data-especial]").forEach(a => {
+    a.href = waURL(t("Hola 0808 Café ☕ Quiero consultar la disponibilidad de {n} (bajo pedido).", { n: a.dataset.especial }));
+  });
+}
+
 function pintarCinta() {
   const textoCinta = t("Envíos gratis en compras superiores a $150 mil pesos");
   // 8 repeticiones idénticas para cubrir la pantalla sin duplicaciones raras
@@ -47,7 +54,7 @@ iniciarExtras();
 pintarPrecios();
 
 // Idioma ESP / EN: al cambiarlo se vuelven a pintar la cinta, los precios y el pedido
-document.addEventListener("idioma", () => { pintarCinta(); pintarPrecios(); });
+document.addEventListener("idioma", () => { pintarCinta(); pintarPrecios(); pintarEspeciales(); });
 iniciarIdioma();
 
 // Precios vigentes del sistema (si hay cambios, se actualizan fichas y pedido)

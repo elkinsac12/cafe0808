@@ -68,6 +68,29 @@ export const EN = {
   "bolsa de {t}g": "{t}g bag",
   "Consultar": "Ask for price",
 
+  /* ---- Variedades bajo pedido ---- */
+  "Bajo pedido · Lotes limitados": "Made to order · Limited lots",
+  "Variedades exóticas": "Exotic varieties",
+  "Varietal exótico": "Exotic varietals",
+  "Además de nuestras tres variedades, trabajamos lotes especiales bajo pedido. Cuéntanos cuál te interesa y te confirmamos disponibilidad, precio y tiempo de entrega.":
+    "Besides our three varieties, we work with special lots made to order. Tell us which one interests you and we'll confirm availability, price and delivery time.",
+  "Bajo pedido": "Made to order",
+  "Floral · Jazmín · Bergamota": "Floral · Jasmine · Bergamot",
+  "Cítrico · Grosella negra · Jugoso": "Citrus · Blackcurrant · Juicy",
+  "Tropical · Frutal · Aromático": "Tropical · Fruity · Aromatic",
+  "Una variedad rara y muy aromática. Taza elegante, de cuerpo ligero, con notas florales y de té.":
+    "A rare and highly aromatic variety. An elegant, light-bodied cup with floral and tea-like notes.",
+  "De acidez brillante y vibrante, con frutos rojos y una taza compleja y muy limpia.":
+    "Bright, vibrant acidity with red fruit and a complex, very clean cup.",
+  "Exótico y dulce, con un perfil frutal poco común. Una taza pensada para sorprender.":
+    "Exotic and sweet, with an uncommon fruity profile. A cup made to surprise.",
+  "Consultar por WhatsApp": "Ask on WhatsApp",
+  "Nos escribes por WhatsApp y nos cuentas qué variedad te interesa.": "You message us on WhatsApp and tell us which variety interests you.",
+  "Confirmamos disponibilidad del lote, precio y tiempo de entrega.": "We confirm lot availability, price and delivery time.",
+  "Tostamos tu pedido y lo enviamos a donde estés.": "We roast your order and ship it wherever you are.",
+  "Hola 0808 Café ☕ Quiero consultar la disponibilidad de {n} (bajo pedido).":
+    "Hello 0808 Café ☕ I'd like to ask about the availability of {n} (made to order).",
+
   /* ---- Altura ---- */
   "Más altura, más dulzor": "More altitude, more sweetness",
   "En la montaña el grano madura despacio y concentra azúcares. Así se ven nuestros orígenes sobre el nivel del mar.":
