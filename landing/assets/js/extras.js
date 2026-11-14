@@ -1,5 +1,5 @@
 /* Secciones interactivas: test del café ideal, guía de molienda y gráfico de altura */
-import { PRODUCTOS, TAMANO_INICIAL } from "./config.js";
+import { PRODUCTOS, TAMANO_INICIAL, TOSTION_FIJA } from "./config.js";
 import { $, $$, esc, img } from "./util.js";
 import { agregar } from "./carrito.js";
 
@@ -47,7 +47,7 @@ function iniciarTest() {
         <h3>${esc(p.nombre)}</h3>
         <p>${esc(MOTIVO[id])}</p>
         <div class="acciones">
-          <button class="btn btn-ambar" type="button" data-agregar="${id}">Agregar ${TAMANO_INICIAL} g al pedido</button>
+          <button class="btn btn-ambar" type="button" data-agregar="${id}">Agregar ${TAMANO_INICIAL}g al pedido</button>
           <button class="btn btn-linea" type="button" data-repetir>Repetir</button>
         </div>
       </div>
@@ -66,7 +66,7 @@ function iniciarTest() {
     }
     if (e.target.closest("[data-repetir]")) { inicio(); return; }
     const add = e.target.closest("[data-agregar]");
-    if (add) agregar({ id: add.dataset.agregar, tamano: TAMANO_INICIAL, molienda: "Grano", tostion: "Medio", cant: 1 });
+    if (add) agregar({ id: add.dataset.agregar, tamano: TAMANO_INICIAL, molienda: "Grano", tostion: TOSTION_FIJA, cant: 1 });
   });
   inicio();
 }

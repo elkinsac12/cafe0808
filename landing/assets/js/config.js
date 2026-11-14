@@ -13,24 +13,25 @@ export const PRODUCTOS = [
     id: "bourbon", clave: "bourbon", nombre: "Bourbon Rosado", subtitulo: "",
     img: "bourbon-rosado", origen: "Gigante – Huila / Colombia", proceso: "Honey", acidez: "Acidez baja",
     msnm: 1950, aroma: "Dulce, panela", sabor: "Frutal, caramelo",
-    precios: { 250: 32000, 500: 58000 }
+    precios: { 250: 32000, 500: 58000, 2500: 300000 }
   },
   {
     id: "chiroso", clave: "chiroso", nombre: "Chiroso", subtitulo: "",
     img: "chiroso", origen: "Urrao – Antioquia / Colombia", proceso: "Lavado", acidez: "Acidez media",
     msnm: 2090, aroma: "Floral, lima", sabor: "Dulce, miel",
-    precios: { 250: 34000, 500: 62000 }
+    precios: { 250: 34000, 500: 62000, 2500: 0 }
   },
   {
     id: "blend", clave: "blend", nombre: "Blend", subtitulo: "Castillo – Caturra",
     img: "blend", origen: "Ciudad Bolívar – Antioquia / Colombia", proceso: "Lavado", acidez: "Acidez media",
     msnm: 1950, aroma: "Caramelo dulce", sabor: "Chocolate, panela",
-    precios: { 250: 28000, 500: 50000 }
+    precios: { 250: 28000, 500: 50000, 2500: 170000 }
   }
 ];
 
-export const TAMANOS = [250, 500];                 // gramos
+export const TAMANOS = [250, 500, 2500];                 // gramos
 export const TAMANO_INICIAL = 250;
 export const MOLIENDAS = ["Grano", "Media", "Fina", "Gruesa"];   // mismo orden que la etiqueta
 export const TOSTIONES = ["Claro", "Medio"];
+export const TOSTION_FIJA = "Medio";   // las tres presentaciones se venden solo en tostión media
 export const MAX_POR_LINEA = 30;

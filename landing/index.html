@@ -14,105 +14,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Big+Shoulders+Display:wght@700;800&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="/assets/img/bourbon-rosado.webp" type="image/webp">
-<link rel="stylesheet" href="/assets/css/landing.css?v=3.0.2">
-<script type="module" src="/assets/js/main.js?v=3.0.2"></script>
-</head>
-<body>
-
-<!-- ============ Barra superior ============ -->
-<header class="barra" id="barra">
-  <div class="contenedor barra-in">
-    <a class="marca" href="#inicio" aria-label="0808 Café, ir al inicio">
-      <picture><source srcset="/assets/img/logo-nav.webp" type="image/webp"><img src="/assets/img/logo-nav.png" alt="" width="39" height="44"></picture>
-    </a>
-    <ul class="nav" id="nav">
-      <li><a href="#cafes">Cafés y precios</a></li>
-      <li><a href="#test">Tu café ideal</a></li>
-      <li><a href="#molienda">Molienda</a></li>
-      <li><a href="#nosotros">Nosotros</a></li>
-      <li><a href="#contacto">Contacto</a></li>
-    </ul>
-    <button class="btn-carrito" id="abrirCarrito" type="button" aria-haspopup="dialog" aria-controls="carrito">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
-      <span class="txt">Tu pedido</span>
-      <span class="num" id="numCarrito" aria-label="productos en el pedido">0</span>
-    </button>
-    <button class="menu-btn" id="menuBtn" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="nav">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-    </button>
-  </div>
-</header>
-
-<main>
-<!-- ============ Hero ============ -->
-<section class="hero" id="inicio">
-  <div class="contenedor hero-grid">
-    <div class="hero-texto">
-      <h1>Café de altura, tostado con calma</h1>
-      <p class="hero-sub">Orígenes de Antioquia y Huila, cultivados entre 1.950 y 2.090 metros. Escoge entre grano y molido, y te lo hacemos llegar.</p>
-      <p class="hero-precio">Bolsas desde<strong id="precioDesde">—</strong></p>
-      <div class="hero-btns">
-        <a href="#cafes" class="btn btn-ambar">Ver cafés y precios</a>
-        <a href="#test" class="btn btn-linea">Encuentra el tuyo</a>
-      </div>
-    </div>
-    <div class="bolsas" aria-hidden="true">
-      <img class="b1" src="/assets/img/chiroso-sm.webp" alt="" width="448" height="598">
-      <img class="b2" src="/assets/img/bourbon-rosado.webp" alt="" width="896" height="1195" fetchpriority="high">
-      <img class="b3" src="/assets/img/blend-sm.webp" alt="" width="448" height="598">
-    </div>
-  </div>
-</section>
-
-<div class="cinta" aria-hidden="true"><div class="cinta-pista" id="cinta"></div></div>
-
-<!-- ============ Cafés ============ -->
-<section class="cafes" id="cafes">
-  <div class="contenedor">
-    <div class="cafes-cabecera">
-      <div>
-        <h2>Tres variedades.</h2>
-        <p class="intro">Marca en la etiqueta cómo lo quieres, elige el tamaño y agrégalo a tu pedido. Al final lo envías por WhatsApp y coordinamos pago y envío.</p>
-      </div>
-    </div>
-    <div class="lista-fichas" id="fichas"></div>
-  </div>
-</section>
-
-<!-- ============ Altura ============ -->
-<section class="altura" id="altura">
-  <div class="contenedor">
-    <h2>Más altura, más dulzor</h2>
-    <p class="intro">En la montaña el grano madura despacio y concentra azúcares. Así se ven nuestros orígenes sobre el nivel del mar.</p>
-    <svg class="montana" id="montana" viewBox="0 0 900 340" role="img" aria-label="Altitud de los orígenes: Gigante, Huila, 1.950 msnm; Urrao, Antioquia, 2.090 msnm; Ciudad Bolívar, Antioquia, 1.950 msnm">
-      <path class="pico" d="M0 320 L120 230 L220 270 L330 150 L430 230 L540 96 L650 215 L760 150 L900 300 L900 340 L0 340 Z"/>
-      <g class="marca-alt"><line class="guia" x1="330" y1="150" x2="330" y2="70"/><text class="num" x="330" y="56" text-anchor="middle">1.950</text><text x="330" y="20" text-anchor="middle">Gigante, Huila</text></g>
-      <g class="marca-alt"><line class="guia" x1="540" y1="96" x2="540" y2="70"/><text class="num" x="540" y="56" text-anchor="middle">2.090</text><text x="540" y="20" text-anchor="middle">Urrao, Antioquia</text></g>
-      <g class="marca-alt"><line class="guia" x1="760" y1="150" x2="760" y2="110"/><text class="num" x="760" y="96" text-anchor="middle">1.950</text><text x="760" y="60" text-anchor="middle">Ciudad Bolívar, Antioquia</text></g>
-      <text x="14" y="300">msnm</text>
-    </Aquí tienes el código completo de tu archivo HTML con la ortografía corregida en la sección del subtítulo (**"Orígenes de Antioquia y Huila..."** en lugar de *Oriegenes*)[cite: 5]. 
-
-El guion (`—`) en el precio inicial de la portada desaparecerá automáticamente en cuanto tu aplicación en el servidor (Render) complete el despliegue con las variables de entorno de `gestion_cafe` configuradas, ya que el archivo JavaScript (`main.js`) es el encargado de consultar ese valor y rellenar dinámicamente ese campo.
-
-```html
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>0808 Café de Especialidad · Café de origen colombiano</title>
-<meta name="description" content="Café de especialidad 100% colombiano: Bourbon Rosado de Huila, Chiroso de Urrao y Blend de Ciudad Bolívar. Precios, molienda a tu gusto y pedido por WhatsApp.">
-<meta name="theme-color" content="#24292c">
-<meta property="og:title" content="0808 Café de Especialidad">
-<meta property="og:description" content="Tres cafés colombianos de altura. Elige molienda, tostión y pide por WhatsApp.">
-<meta property="og:image" content="/assets/img/bourbon-rosado.jpg">
-<link rel="icon" type="image/png" href="/assets/img/logo-nav.png">
-<link rel="preconnect" href="[https://fonts.googleapis.com](https://fonts.googleapis.com)">
-<link rel="preconnect" href="[https://fonts.gstatic.com](https://fonts.gstatic.com)" crossorigin>
-<link href="[https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Big+Shoulders+Display:wght@700;800&display=swap](https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Big+Shoulders+Display:wght@700;800&display=swap)" rel="stylesheet">
-<link rel="preload" as="image" href="/assets/img/bourbon-rosado.webp" type="image/webp">
 <link rel="stylesheet" href="/assets/css/landing.css?v=3.0.1">
-<script type="module" src="/assets/js/main.js?v=3.0.1"></script>
+<script type="module" src="/assets/js/main.js?v=3.0.4"></script>
 </head>
 <body>
 
@@ -146,7 +49,7 @@ El guion (`—`) en el precio inicial de la portada desaparecerá automáticamen
   <div class="contenedor hero-grid">
     <div class="hero-texto">
       <h1>Café de altura, tostado con calma</h1>
-      <p class="hero-sub">Orígenes de Antioquia y Huila, cultivados entre 1.950 y 2.090 metros. Escoge entre grano y molido, y te lo hacemos llegar.</p>
+      <p class="hero-sub">Orígenes de Antioquia y Huila, cultivados entre 1.950 y 2.090 metros. Escoge entre grano y molido, y te lo hacermos llegar.</p>
       <p class="hero-precio">Bolsas desde<strong id="precioDesde">—</strong></p>
       <div class="hero-btns">
         <a href="#cafes" class="btn btn-ambar">Ver cafés y precios</a>
@@ -262,6 +165,7 @@ El guion (`—`) en el precio inicial de la portada desaparecerá automáticamen
 <footer>
   <div class="contenedor pie">
     <span>© <span id="anio">2026</span> 0808 Café de Especialidad. Hecho en Colombia.</span>
+    <nav aria-label="Redes"><a id="pieInstagram" href="#" target="_blank" rel="noopener">Instagram</a><a id="pieTiktok" href="#" target="_blank" rel="noopener">TikTok</a></nav>
   </div>
 </footer>
 

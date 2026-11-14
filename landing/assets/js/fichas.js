@@ -1,6 +1,6 @@
 /* Fichas de producto con forma de etiqueta: el cliente marca molienda y tostión
    en los mismos círculos que trae la etiqueta impresa. */
-import { PRODUCTOS, TAMANOS, TAMANO_INICIAL, MOLIENDAS, TOSTIONES, MAX_POR_LINEA } from "./config.js";
+import { PRODUCTOS, TAMANOS, TAMANO_INICIAL, MOLIENDAS, TOSTIONES, TOSTION_FIJA, MAX_POR_LINEA } from "./config.js";
 import { $, $$, esc, img } from "./util.js";
 import { precioDe } from "./precios.js";
 import { agregar } from "./carrito.js";
@@ -8,7 +8,10 @@ import { agregar } from "./carrito.js";
 const circulos = (grupo, lista, marcado, id, dosCol) => `
   <fieldset class="circulos${dosCol ? " dos-col" : ""}">
     <legend>${grupo === "molienda" ? "Molienda" : "Tostión"}</legend>
-    ${lista.map(v => `<label class="circulo"><input type="radio" name="${grupo}-${id}" value="${esc(v)}"${v === marcado ? " checked" : ""}><i></i>${esc(v)}</label>`).join("")}
+    ${lista.map(v => {
+      const bloqueado = grupo === "tostion" && v !== TOSTION_FIJA;   // tostión fija: solo Medio
+      return `<label class="circulo${bloqueado ? " bloqueado" : ""}"><input type="radio" name="${grupo}-${id}" value="${esc(v)}"${v === marcado ? " checked" : ""}${bloqueado ? " disabled" : ""}><i></i>${esc(v)}</label>`;
+    }).join("")}
   </fieldset>`;
 
 function ficha(p) {
@@ -36,13 +39,13 @@ function ficha(p) {
         <div>${circulos("molienda", MOLIENDAS, "Grano", p.id, true)}</div>
         <div class="et-campo"><small>Aroma</small><span>${esc(p.aroma)}</span><small class="mt">Sabor</small><span>${esc(p.sabor)}</span></div>
         <div class="et-campo"><small>msnm</small><b class="et-msnm">${p.msnm.toLocaleString("es-CO")}</b></div>
-        <div>${circulos("tostion", TOSTIONES, "Medio", p.id, false)}</div>
+        <div>${circulos("tostion", TOSTIONES, TOSTION_FIJA, p.id, false)}</div>
       </div>
       <div class="et-pie">
         <div class="tamanos" role="radiogroup" aria-label="Tamaño de bolsa">
-          ${TAMANOS.map(t => `<label><input type="radio" name="tamano-${p.id}" value="${t}"${t === TAMANO_INICIAL ? " checked" : ""}><span>${t} g</span></label>`).join("")}
+          ${TAMANOS.map(t => `<label><input type="radio" name="tamano-${p.id}" value="${t}"${t === TAMANO_INICIAL ? " checked" : ""}><span>${t}g</span></label>`).join("")}
         </div>
-        <div class="precio" aria-live="polite"><strong data-precio>${"$" + precioDe(p.id, TAMANO_INICIAL).toLocaleString("es-CO")}</strong><small data-por>bolsa de ${TAMANO_INICIAL} g</small></div>
+        <div class="precio" aria-live="polite"><strong data-precio>${"$" + precioDe(p.id, TAMANO_INICIAL).toLocaleString("es-CO")}</strong><small data-por>bolsa de ${TAMANO_INICIAL}g</small></div>
         <div class="et-acciones">
           <div class="paso" role="group" aria-label="Cantidad">
             <button type="button" data-d="-1" aria-label="Una menos">−</button>
@@ -61,8 +64,9 @@ const valor = (art, nombre) => $(`input[name="${nombre}-${art.dataset.id}"]:chec
 export function actualizarPreciosFichas() {
   $$(".ficha").forEach(art => {
     const t = Number(valor(art, "tamano"));
-    $("[data-precio]", art).textContent = "$" + precioDe(art.dataset.id, t).toLocaleString("es-CO");
-    $("[data-por]", art).textContent = `bolsa de ${t} g`;
+    const precio = precioDe(art.dataset.id, t);
+    $("[data-precio]", art).textContent = precio > 0 ? "$" + precio.toLocaleString("es-CO") : "Consultar";
+    $("[data-por]", art).textContent = `bolsa de ${t}g`;
   });
 }
 
@@ -75,8 +79,11 @@ export function iniciarFichas() {
   });
 
   cont.addEventListener("click", e => {
+    // Cada clic se procesa una sola vez, aunque este manejador quede registrado dos veces
+    if (e.__fichaProcesado) return;
     const art = e.target.closest(".ficha");
     if (!art) return;
+    e.__fichaProcesado = true;
     const out = $("[data-cant]", art);
     const paso = e.target.closest("[data-d]");
     if (paso) {
@@ -88,7 +95,7 @@ export function iniciarFichas() {
         id: art.dataset.id,
         tamano: Number(valor(art, "tamano")),
         molienda: valor(art, "molienda"),
-        tostion: valor(art, "tostion"),
+        tostion: TOSTION_FIJA,
         cant: Number(out.textContent)
       });
       out.textContent = "1";

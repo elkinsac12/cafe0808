@@ -1,6 +1,6 @@
 /* Pedido: agregar, editar (tamaño, molienda, tostión, cantidad), quitar con deshacer
    y enviar por WhatsApp. Se guarda en este navegador para no perderlo al recargar. */
-import { PRODUCTOS, TAMANOS, MOLIENDAS, TOSTIONES, MAX_POR_LINEA } from "./config.js";
+import { PRODUCTOS, TAMANOS, MOLIENDAS, TOSTION_FIJA, MAX_POR_LINEA } from "./config.js";
 import { $, aviso, esc, img, local, moneda, waURL } from "./util.js";
 import { precioDe } from "./precios.js";
 
@@ -14,9 +14,9 @@ function limpiar(lista) {
   // Descarta líneas viejas o alteradas que no correspondan a un producto/opción válida
   return (Array.isArray(lista) ? lista : []).filter(l =>
     PRODUCTOS.some(p => p.id === l.id) && TAMANOS.includes(l.tamano) &&
-    MOLIENDAS.includes(l.molienda) && TOSTIONES.includes(l.tostion) &&
+    MOLIENDAS.includes(l.molienda) &&
     Number.isInteger(l.cant) && l.cant > 0
-  ).map(l => ({ ...l, cant: Math.min(l.cant, MAX_POR_LINEA) }));
+  ).map(l => ({ ...l, tostion: TOSTION_FIJA, cant: Math.min(l.cant, MAX_POR_LINEA) }));   // pedidos guardados con otra tostión pasan a Medio
 }
 
 const igual = (a, b) => a.id === b.id && a.tamano === b.tamano && a.molienda === b.molienda && a.tostion === b.tostion;
@@ -36,7 +36,7 @@ export function agregar(item) {
   guardar();
   const num = $("#numCarrito");
   num.classList.remove("salta"); void num.offsetWidth; num.classList.add("salta");
-  aviso(`${producto(item.id).nombre} ${item.tamano} g agregado`, { texto: "Ver pedido", fn: abrir });
+  aviso(`${producto(item.id).nombre} ${item.tamano}g agregado`, { texto: "Ver pedido", fn: abrir });
 }
 
 function quitar(i) {
@@ -66,7 +66,7 @@ function mensaje() {
   if (!lineas.length) return "Hola 0808 Café ☕ Quiero conocer más sobre sus cafés de especialidad.";
   const filas = lineas.map(l => {
     const p = producto(l.id);
-    return `• ${l.cant} x ${p.nombre} ${l.tamano} g — Molienda: ${l.molienda}, Tostión: ${l.tostion} — ${moneda(precioDe(l.id, l.tamano) * l.cant)}`;
+    return `• ${l.cant} x ${p.nombre} ${l.tamano}g — Molienda: ${l.molienda}, Tostión: ${l.tostion} — ${moneda(precioDe(l.id, l.tamano) * l.cant)}`;
   });
   let txt = "Hola 0808 Café ☕ Quiero hacer este pedido:\n\n" + filas.join("\n") + `\n\nTotal: ${moneda(total())} (sin envío)`;
   const nombre = (datos.nombre || "").trim(), ciudad = (datos.ciudad || "").trim();
@@ -104,9 +104,9 @@ export function pintar() {
       <div>
         <div class="linea-top"><h3>${esc(p.nombre)}</h3><span class="linea-precio">${moneda(precioDe(l.id, l.tamano) * l.cant)}</span></div>
         <div class="linea-ops">
-          <label>Tamaño<select data-campo="tamano" aria-label="Tamaño de ${esc(p.nombre)}">${opciones(TAMANOS, l.tamano, t => `${t} g`)}</select></label>
+          <label>Tamaño<select data-campo="tamano" aria-label="Tamaño de ${esc(p.nombre)}">${opciones(TAMANOS, l.tamano, t => `${t}g`)}</select></label>
           <label>Molienda<select data-campo="molienda" aria-label="Molienda de ${esc(p.nombre)}">${opciones(MOLIENDAS, l.molienda)}</select></label>
-          <label>Tostión<select data-campo="tostion" aria-label="Tostión de ${esc(p.nombre)}">${opciones(TOSTIONES, l.tostion)}</select></label>
+          <label>Tostión<select data-campo="tostion" aria-label="Tostión de ${esc(p.nombre)}">${opciones([TOSTION_FIJA], TOSTION_FIJA)}</select></label>
         </div>
         <div class="linea-pie">
           <div class="paso" role="group" aria-label="Cantidad de ${esc(p.nombre)}">
@@ -148,6 +148,9 @@ export function cerrar() {
 export function iniciarCarrito() {
   const cuerpo = $("#carritoCuerpo");
   cuerpo.addEventListener("click", e => {
+    // Cada clic se procesa una sola vez, aunque este manejador quede registrado dos veces
+    if (e.__carritoProcesado) return;
+    e.__carritoProcesado = true;
     if (e.target.closest("[data-cerrar]")) { cerrar(); return; }
     const art = e.target.closest(".linea");
     if (!art) return;

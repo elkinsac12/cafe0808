@@ -199,6 +199,8 @@ section { padding: clamp(72px, 10vw, 128px) 0; }
 .circulo input:checked + i::after { transform: scale(1); }
 .circulo input:focus-visible + i { outline: 2px solid var(--tinta); outline-offset: 2px; }
 .circulo:hover i { background: rgba(27, 23, 18, .1); }
+.circulo.bloqueado { opacity: .4; cursor: not-allowed; }
+.circulo.bloqueado:hover i { background: transparent; }
 
 .et-pie { display: grid; grid-template-columns: auto 1fr; gap: 14px 20px; align-items: center; padding: 16px 14px 4px; }
 .tamanos { display: inline-flex; border: 1.5px solid var(--tinta); border-radius: 999px; padding: 3px; }
