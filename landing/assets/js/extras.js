@@ -75,11 +75,9 @@ function iniciarTest() {
 const METODOS = [
   { n: "Prensa francesa", g: "Gruesa", t: "4 minutos de infusión", tip: "Cuerpo pleno y textura aceitosa. Una molienda gruesa evita que quede turbio y amargo.", size: 9 },
   { n: "V60 / Chemex", g: "Media", t: "2 a 3 minutos", tip: "Resalta las notas florales y frutales. Ideal para el Chiroso y el Bourbon Rosado.", size: 6 },
-  { n: "Cafetera de goteo", g: "Media", t: "5 a 6 minutos", tip: "Práctica para varias tazas. Una molienda media da un café equilibrado.", size: 6 },
-  { n: "Moka / greca", g: "Fina", t: "4 a 5 minutos", tip: "Intenso y concentrado. Fina, pero sin llegar a polvo, para que no se amargue.", size: 3.5 },
-  { n: "Espresso", g: "Fina", t: "25 a 30 segundos", tip: "Pide molienda fina y ajusta según tu máquina. El Blend se lleva muy bien con leche.", size: 2.6 },
-  { n: "No tengo molino", g: "Media", t: "Te lo enviamos molido", tip: "Sin molino, marca molienda media: sirve para goteo, V60 y la mayoría de cafeteras caseras.", size: 6 },
-  { n: "Tengo molino", g: "Grano", t: "Muélelo justo antes de preparar", tip: "Si tienes molino, pídelo en grano: el aroma y el sabor se conservan mucho más tiempo.", size: 20 }
+  { n: "Cafetera de goteo", g: "Media a gruesa", t: "Indicado en manual de la cafetera", tip: "Práctica para varias tazas. Una molienda media a gruesa da un café equilibrado.", size: 6 },
+  { n: "Moka / Greca", g: "Fina a media", t: "4 a 5 minutos", tip: "Ideal para un café intenso y con carácter. Pídela fina a media, así conservas el dulzor y evitas el amargor.", size: 3.5 },
+  { n: "Espresso", g: "Fina", t: "25 a 30 segundos", tip: "Para un espresso de cuerpo pleno y dulzor marcado. Calibra la molienda según tu equipo; el Blend se integra a la perfección con la leche.", size: 2.6 }
 ];
 
 function iniciarMolienda() {
