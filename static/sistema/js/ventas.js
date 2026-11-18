@@ -79,6 +79,14 @@ async function cargarMisVentas() {
                 const creditoPendiente = (v.estado_credito || '') === 'Pendiente';
                 const totalVenta = Number(v.total_venta || 0);
 
+                // Costo y ganancia: el servidor solo los envía al administrador
+                const costoVenta = Number(v.costo_estimado || 0);
+                const gananciaVenta = (v.ganancia !== undefined && v.ganancia !== null) ? Number(v.ganancia) : (totalVenta - costoVenta);
+                const colorGan = esAnulado ? 'inherit' : (gananciaVenta < 0 ? '#ff6b6b' : '#2ecc71');
+                const celdasCosto = (rolActual === 'admin') ? `
+                        <td>${fmtCOP(costoVenta)}</td>
+                        <td style="color:${colorGan}; font-weight:bold;">${fmtCOP(gananciaVenta)}</td>` : '';
+
                 return `
                     <tr ${estiloFila}>
                         <td><strong>${numFact}</strong></td>
@@ -89,7 +97,7 @@ async function cargarMisVentas() {
                         <td>
                             ${fmtCOP(totalVenta)} 
                             ${(esCredito && !esAnulado) ? `<br/><small style="color:${creditoPendiente ? '#ff6b6b' : '#2ecc71'};">💳 Crédito: ${v.estado_credito || 'Pendiente'}</small>` : ''}
-                        </td>
+                        </td>${celdasCosto}
                         <td>
                             <button class="btn-gold" style="padding: 4px 10px; width:auto; display:inline-flex;" onclick="abrirModalPdf('/api/ventas/${idVal}/pdf', 'Factura N° ${numFact}', 'Factura_${numFact}.pdf')">👁️ Ver Factura</button>
                             ${!esAnulado ? `
@@ -108,7 +116,7 @@ async function cargarMisVentas() {
     } catch (err) {
         console.error("Error cargando histórico de ventas:", err);
         const tbody = document.querySelector('#tabla-mis-ventas tbody');
-        if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#ff6b6b;">Error al cargar ventas (${err.message})</td></tr>`;
+        if (tbody) tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#ff6b6b;">Error al cargar ventas (${err.message})</td></tr>`;
     }
 }
 

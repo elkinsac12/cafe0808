@@ -53,6 +53,17 @@ async function cargarMisCotizaciones() {
 
                 const estiloFila = esAnulado ? 'style="background-color: rgba(255, 107, 107, 0.15); color: #ff6b6b;"' : '';
 
+                // Costo y ganancia: el servidor solo los envía al administrador.
+                // En pedidos pendientes son un estimado con los costos de hoy (se fija al aprobar).
+                const costoPed = Number(c.costo_estimado || 0);
+                const gananciaPed = (c.ganancia !== undefined && c.ganancia !== null) ? Number(c.ganancia) : (Number(c.total_venta || 0) - costoPed);
+                const colorGan = esAnulado ? 'inherit' : (gananciaPed < 0 ? '#ff6b6b' : '#2ecc71');
+                const nota = c.costo_proyectado ? ' title="Estimado con los costos actuales. Se fija al aprobar el pedido."' : '';
+                const marca = c.costo_proyectado ? ' <small style="opacity:.6;">est.</small>' : '';
+                const celdasCosto = (rolActual === 'admin') ? `
+                        <td${nota}>${fmtCOP(costoPed)}${marca}</td>
+                        <td${nota} style="color:${colorGan}; font-weight:bold;">${fmtCOP(gananciaPed)}${marca}</td>` : '';
+
                 return `
                     <tr ${estiloFila}>
                         <td><strong>${numCot}</strong></td>
@@ -60,7 +71,7 @@ async function cargarMisCotizaciones() {
                         <td>${c.cliente || ''}</td>
                         <td><strong>${c.tipo_venta || 'Normal'}</strong></td>
                         <td>${badgeEstado}</td>
-                        <td>${fmtCOP(c.total_venta)}</td>
+                        <td>${fmtCOP(c.total_venta)}</td>${celdasCosto}
                         <td>
                             ${(!esAnulado && !esDespachado) ? `<button class="btn-approve" style="padding: 4px 10px; width:auto; display:inline-flex;" onclick="despacharPedido('${idVal}')">✅ Aprobar Pedido</button>` : ''}
                             ${(!esAnulado && !esDespachado) ? `<button class="btn-gold" style="padding: 4px 10px; width:auto; display:inline-flex; margin-left:4px;" onclick="editarPedido('${idVal}')">✏️ Editar</button>` : ''}

@@ -135,8 +135,10 @@ def evaluar_stock(items, resumen_cafe=None, resumen_emp=None):
     return (not faltantes), faltantes
 
 
-def costo_estimado(items, resumen_cafe, resumen_emp) -> int:
-    productos = list(db.productos.find({}, {"nombre": 1, "costo_por_libra": 1}))
+def costo_estimado(items, resumen_cafe, resumen_emp, productos=None) -> int:
+    # "productos" se puede pasar ya cargado para costear muchos documentos con una sola consulta
+    if productos is None:
+        productos = list(db.productos.find({}, {"nombre": 1, "costo_por_libra": 1}))
     por_id = {str(p["_id"]): p for p in productos}
     por_nombre = {p["nombre"]: p for p in productos}
 

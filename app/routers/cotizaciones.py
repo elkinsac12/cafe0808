@@ -45,9 +45,45 @@ def registrar_cotizacion(cotizacion: VentaCreate, user: dict = Depends(get_curre
     return {"id": str(res.inserted_id), "consecutivo": consecutivo}
 
 
+def _agregar_costos(pedidos: list) -> None:
+    """Solo para admin: agrega costo_estimado y ganancia a cada pedido.
+    - Despachado: se toma de la venta que generó (el costo real fijado al aprobar).
+    - Anulado: 0.
+    - Pendiente: se calcula con los costos actuales (es un estimado; se fija al aprobar)."""
+    ids_ventas = []
+    for p in pedidos:
+        if p.get("estado") == "Despachado" and p.get("venta_asociada_id"):
+            try:
+                ids_ventas.append(oid(p["venta_asociada_id"]))
+            except Exception:
+                pass
+    ventas = {str(v["_id"]): v for v in db.ventas.find(
+        {"_id": {"$in": ids_ventas}}, {"costo_estimado": 1, "ganancia": 1})} if ids_ventas else {}
+
+    resumen_cafe = resumen_emp = productos = None
+    for p in pedidos:
+        total = float(p.get("total_venta") or 0.0)
+        estado = p.get("estado")
+        venta = ventas.get(str(p.get("venta_asociada_id") or ""))
+        if estado == "Anulado":
+            p["costo_estimado"], p["ganancia"], p["costo_proyectado"] = 0.0, 0.0, False
+        elif estado == "Despachado" and venta is not None:
+            costo = float(venta.get("costo_estimado") or 0.0)
+            p["costo_estimado"] = costo
+            p["ganancia"] = float(venta["ganancia"]) if venta.get("ganancia") is not None else total - costo
+            p["costo_proyectado"] = False
+        else:
+            if resumen_cafe is None:  # se cargan una sola vez, y solo si hay algún pedido por estimar
+                resumen_cafe, resumen_emp = resumen_inventario(), resumen_empaques()
+                productos = list(db.productos.find({}, {"nombre": 1, "costo_por_libra": 1}))
+            costo = float(costo_estimado(p.get("items", []), resumen_cafe, resumen_emp, productos))
+            p["costo_estimado"], p["ganancia"], p["costo_proyectado"] = costo, total - costo, True
+
+
 @router.get("")
 def listar_cotizaciones(user: dict = Depends(get_current_user)):
-    filtro = {} if es_admin(user) else {"vendedor": user["username"]}
+    admin = es_admin(user)
+    filtro = {} if admin else {"vendedor": user["username"]}
     salida = []
     for c in db.cotizaciones.find(filtro, {"historial_ediciones": 0}).sort("fecha", -1):
         c = fix_id(c)
@@ -55,6 +91,8 @@ def listar_cotizaciones(user: dict = Depends(get_current_user)):
             c["tipo_pago"] = "Contado"
         c.setdefault("estado", "Pendiente")
         salida.append(c)
+    if admin:  # los costos y ganancias nunca se envían a los vendedores
+        _agregar_costos(salida)
     return salida
 
 
