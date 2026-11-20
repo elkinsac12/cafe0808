@@ -10,6 +10,11 @@ from reportlab.lib.units import inch
 
 LOGO_FALLBACK = "/9j/4AAQSkZJRgABAQAASABIAAD/4QCMRXhpZgAATU0AKgAAAAgABQESAAMAAAABAAEAAAEaAAUAAAABAAAASgEbAAUAAAABAAAAUgEoAAMAAAABAAIAAIdpAAQAAAABAAAAWgAAAAAAAABIAAAAAQAAAEgAAAABAAOgAQADAAAAAQABAACgAgAEAAAAAQAAAoCgAwAEAAAAAQAAAoAAAAAA/+0AOFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAAAOEJJTQQlAAAAAAAQ1B2M2Y8AsgTpgAmY7PhCfv/AABEIAoACgAMBIgACEQEDEQH/xAAfAAABBQEBAQEBAQAAAAAAAAAAAQIDBAUGBwgJCgv/xAC1EAACAQMDAgQDBQUEBAAAAX0BAgMABBEFEiExQQYTUWEHInEUMoGRoQgjQrHBFVLR8CQzYnKCCQoWFxgZGiUmJygpKjQ1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4eLj5OXm5+jp6vHy8/T19vf4+fr/xAAfAQADAQEBAQEBAQEBAAAAAAAAAQIDBAUGBwgJCgv/xAC1EQACAQIEBAMEBwUEBAABAncAAQIDEQQFITEGEkFRB2FxEyIxgUQUQpGhscE/9oADAMBAAIRAxEAP/AP9k="
 
+def _cop(valor) -> str:
+    """Pesos redondeados (no truncados): 52.999,6 se imprime $53,000 y no $52,999."""
+    return f"${round(float(valor or 0)):,}"
+
+
 def generar_factura_pdf(documento, items, es_cotizacion=False):
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
@@ -80,30 +85,33 @@ def generar_factura_pdf(documento, items, es_cotizacion=False):
 
     table_data = [["Producto", "Cant.", "Precio Unit.", "Descuento", "Subtotal"]]
     
+    es_obsequio = documento.get("tipo_venta") == "Obsequio"
     valor_total_bruto = 0.0
     descuento_total = 0.0
+    valor_a_pagar = 0.0
 
     for item in items:
         cant = item["cantidad"]
-        p_unit = item["precio_unitario"]
-        desc_u = item.get("descuento", 0.0)
+        p_unit = float(item["precio_unitario"] or 0.0)
+        desc_u = float(item.get("descuento", 0.0) or 0.0)
         pres = item.get("presentacion", "Grano")
 
         subtotal_bruto = cant * p_unit
-        desc_item_total = desc_u * cant
+        # En un obsequio el descuento es el 100%, así cada fila cierra: Cant x Precio - Descuento = Subtotal
+        desc_item_total = subtotal_bruto if es_obsequio else min(subtotal_bruto, desc_u * cant)
+        subtotal_neto = subtotal_bruto - desc_item_total
 
         valor_total_bruto += subtotal_bruto
         descuento_total += desc_item_total
+        valor_a_pagar += subtotal_neto
 
         table_data.append([
             f"{item['nombre']} ({int(item['gramaje'])}g - {pres})",
             str(cant),
-            f"${int(p_unit):,}",
-            f"${int(desc_item_total):,}",
-            f"${int(subtotal_bruto):,}"
+            _cop(p_unit),
+            _cop(desc_item_total),
+            _cop(subtotal_neto),      # ya con el descuento aplicado: la suma de esta columna es el Valor a Pagar
         ])
-
-    valor_a_pagar = max(0.0, valor_total_bruto - descuento_total) if documento.get("tipo_venta") != "Obsequio" else 0.0
 
     prod_table = Table(table_data, colWidths=[3.0*inch, 0.7*inch, 1.1*inch, 1.1*inch, 1.1*inch])
     prod_table.setStyle(TableStyle([
@@ -125,9 +133,9 @@ def generar_factura_pdf(documento, items, es_cotizacion=False):
     )
 
     total_data = [
-        [texto_cuenta, "Valor Total:", f"${int(valor_total_bruto):,} COP"],
-        ["", "Descuento Total:", f"-${int(descuento_total):,} COP"],
-        ["", "Valor a Pagar:", f"${int(valor_a_pagar):,} COP"]
+        [texto_cuenta, "Valor Bruto:", f"{_cop(valor_total_bruto)} COP"],
+        ["", "Descuento Total:", f"-{_cop(descuento_total)} COP"],
+        ["", "Valor a Pagar:", f"{_cop(valor_a_pagar)} COP"]
     ]
 
     t_totales = Table(total_data, colWidths=[3.2*inch, 2.0*inch, 1.8*inch])
