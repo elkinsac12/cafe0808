@@ -3,12 +3,27 @@
 Se usan desde ventas, pedidos y ajustes. Cada función hace pocas consultas agregadas
 (en vez de una consulta por producto) para responder rápido aunque haya muchos datos.
 """
+import logging
 from datetime import datetime
 
 from app.database import db
 
+logger = logging.getLogger(__name__)
+
 TIPOS_EMPAQUE = ("bolsa_250g", "bolsa_500g", "etiqueta_250g", "etiqueta_500g")
-_FILTRO_DESPACHADAS = {"estado_despacho": {"$nin": ["Pendiente", "Anulado"]}, "tipo_venta": {"$ne": "Anulado"}}
+
+# Filtro para café: solo ventas despachadas (no pendientes, no anuladas)
+_FILTRO_CAFE = {
+    "estado_despacho": {"$nin": ["Pendiente", "Anulado"]}, 
+    "tipo_venta": {"$ne": "Anulado"}
+}
+
+# Filtro para empaques: incluye ventas "Pendiente" (porque el empaque se gasta al empacar)
+# y ventas viejas donde el campo no existe (null). Excluye solo las "Anulado".
+_FILTRO_EMPAQUES = {
+    "estado_despacho": {"$ne": "Anulado"}, 
+    "tipo_venta": {"$ne": "Anulado"}
+}
 
 
 def empaques_por_item(gramaje: int, cantidad: int) -> dict:
@@ -21,14 +36,21 @@ def empaques_por_item(gramaje: int, cantidad: int) -> dict:
         req["bolsa_500g"] += cantidad
         req["etiqueta_500g"] += cantidad
     elif gramaje == 2500:
+        # Regla 0808: la bolsa de 2500g se reutiliza del proveedor (no se descuenta);
+        # solo se consume una etiqueta de 500g por unidad.
         req["etiqueta_500g"] += cantidad
+    else:
+        logger.warning("Gramaje no contemplado en cálculo de empaques: %s", gramaje)
     return req
 
 
 def empaques_requeridos(items) -> dict:
     total = dict.fromkeys(TIPOS_EMPAQUE, 0)
     for it in items:
-        for k, v in empaques_por_item(int(it.get("gramaje", 0)), int(it.get("cantidad", 0))).items():
+        # int(float(...)) evita errores si el front manda "2500" o 2500.0
+        gramaje_int = int(float(it.get("gramaje", 0)))
+        cant_int = int(it.get("cantidad", 0))
+        for k, v in empaques_por_item(gramaje_int, cant_int).items():
             total[k] += v
     return total
 
@@ -46,12 +68,15 @@ def resumen_empaques() -> dict:
     ])}
 
     usados = dict.fromkeys(TIPOS_EMPAQUE, 0)
+    # Usamos el filtro de empaques (incluye "Pendiente" y ventas viejas sin estado)
     for g in db.ventas.aggregate([
-        {"$match": _FILTRO_DESPACHADAS},
+        {"$match": _FILTRO_EMPAQUES},
         {"$unwind": "$items"},
         {"$group": {"_id": "$items.gramaje", "cant": {"$sum": "$items.cantidad"}}}
     ]):
-        for k, v in empaques_por_item(int(g["_id"] or 0), int(g["cant"] or 0)).items():
+        gramaje_int = int(float(g["_id"] or 0))
+        cant_int = int(g["cant"] or 0)
+        for k, v in empaques_por_item(gramaje_int, cant_int).items():
             usados[k] += v
 
     ajustes = {a["tipo_empaque"]: a for a in db.ajustes_empaques.find({"tipo_empaque": {"$in": list(TIPOS_EMPAQUE)}})}
@@ -100,7 +125,7 @@ def resumen_inventario() -> dict:
     dict_ajustes = gramos_ajustados_por_producto()
 
     dict_usados = {v["_id"]: v["usados_g"] for v in db.ventas.aggregate([
-        {"$match": _FILTRO_DESPACHADAS},
+        {"$match": _FILTRO_CAFE}, # CAMBIO: Usamos el filtro específico de café
         {"$unwind": "$items"},
         {"$group": {"_id": "$items.nombre", "usados_g": {"$sum": "$items.gramos_totales"}}}
     ]) if v["_id"]}
