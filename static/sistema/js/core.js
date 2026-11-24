@@ -157,30 +157,79 @@ function actualizarRenderTabla(tableId) {
     if (pagInfo) pagInfo.innerText = `Pág. ${st.page} de ${totalPages} (${filtered.length} reg.)`;
 }
 
-function exportarTablaExcel(tableId, filename) {
-    const table = document.getElementById(tableId);
-    if (!table) return;
-
-    const cloneTable = table.cloneNode(true);
-    const headers = cloneTable.querySelectorAll('th');
-    let removeIdxs = [];
-    headers.forEach((th, idx) => {
-        const txt = th.innerText.trim().toLowerCase();
-        if (txt.includes('acción') || txt.includes('acciones') || txt.includes('vista previa')) {
-            removeIdxs.push(idx);
-        }
+// Carga SheetJS bajo demanda si el <script defer> del HTML no llegó a cargar (red lenta, bloqueador, caché)
+function cargarSheetJS() {
+    if (window.XLSX) return Promise.resolve(true);
+    return new Promise(resolve => {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+        s.onload = () => resolve(!!window.XLSX);
+        s.onerror = () => resolve(false);
+        document.head.appendChild(s);
     });
+}
 
-    removeIdxs.reverse().forEach(removeIdx => {
-        cloneTable.querySelectorAll('tr').forEach(row => {
-            if (row.children[removeIdx]) {
-                row.children[removeIdx].remove();
+function descargarBlob(blob, nombre) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nombre;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+async function exportarTablaExcel(tableId, filename) {
+    try {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+        const st = tableStates[tableId];
+
+        // Copia de la tabla con TODOS los registros filtrados (no solo la página visible)
+        const clone = table.cloneNode(false);
+        clone.removeAttribute('id');
+        clone.appendChild(table.querySelector('thead').cloneNode(true));
+        const tbody = document.createElement('tbody');
+        if (st && Array.isArray(st.data)) {
+            let filas = st.data;
+            if (st.search) {
+                filas = filas.filter(item => Object.values(item || {}).some(val =>
+                    val !== null && val !== undefined && String(val).toLowerCase().includes(st.search)));
             }
-        });
-    });
+            tbody.innerHTML = filas.map((item, idx) => st.renderFn(item, idx)).join('');
+        } else {
+            tbody.innerHTML = table.querySelector('tbody').innerHTML;
+        }
+        clone.appendChild(tbody);
 
-    const wb = XLSX.utils.table_to_book(cloneTable, { sheet: "Reporte" });
-    XLSX.writeFile(wb, filename || 'Reporte_0808.xlsx');
+        // Se quitan columnas de acción / vista previa
+        const quitar = [];
+        clone.querySelectorAll('thead th').forEach((th, idx) => {
+            const txt = th.textContent.trim().toLowerCase();
+            if (txt.includes('acción') || txt.includes('accion') || txt.includes('vista previa')) quitar.push(idx);
+        });
+        quitar.reverse().forEach(i => clone.querySelectorAll('tr').forEach(row => {
+            if (row.children[i]) row.children[i].remove();
+        }));
+
+        const nombre = filename || 'Reporte_0808.xlsx';
+        if (await cargarSheetJS()) {
+            const wb = XLSX.utils.table_to_book(clone, { sheet: 'Reporte' });
+            XLSX.writeFile(wb, nombre);
+            return;
+        }
+
+        // Respaldo sin librerías: CSV que Excel abre directamente
+        const csv = [...clone.querySelectorAll('tr')].map(tr =>
+            [...tr.children].map(c => '"' + c.textContent.trim().replace(/\s+/g, ' ').replace(/"/g, '""') + '"').join(';')
+        ).join('\r\n');
+        descargarBlob(new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' }), nombre.replace(/\.xlsx$/i, '') + '.csv');
+        alert('No se pudo cargar la librería de Excel; se descargó un archivo CSV que Excel puede abrir.');
+    } catch (err) {
+        console.error('Error exportando a Excel:', err);
+        alert('No se pudo generar el archivo: ' + (err && err.message ? err.message : err));
+    }
 }
 
 function ordenarProductosArray(arr) {
