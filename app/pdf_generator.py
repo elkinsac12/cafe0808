@@ -7,6 +7,7 @@ from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
+from reportlab.lib.utils import ImageReader
 
 LOGO_FALLBACK = "/9j/4AAQSkZJRgABAQAASABIAAD/4QCMRXhpZgAATU0AKgAAAAgABQESAAMAAAABAAEAAAEaAAUAAAABAAAASgEbAAUAAAABAAAAUgEoAAMAAAABAAIAAIdpAAQAAAABAAAAWgAAAAAAAABIAAAAAQAAAEgAAAABAAOgAQADAAAAAQABAACgAgAEAAAAAQAAAoCgAwAEAAAAAQAAAoAAAAAA/+0AOFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAAAOEJJTQQlAAAAAAAQ1B2M2Y8AsgTpgAmY7PhCfv/AABEIAoACgAMBIgACEQEDEQH/xAAfAAABBQEBAQEBAQAAAAAAAAAAAQIDBAUGBwgJCgv/xAC1EAACAQMDAgQDBQUEBAAAAX0BAgMABBEFEiExQQYTUWEHInEUMoGRoQgjQrHBFVLR8CQzYnKCCQoWFxgZGiUmJygpKjQ1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4eLj5OXm5+jp6vHy8/T19vf4+fr/xAAfAQADAQEBAQEBAQEBAAAAAAAAAQIDBAUGBwgJCgv/xAC1EQACAQIEBAMEBwUEBAABAncAAQIDEQQFITEGEkFRB2FxEyIxgUQUQpGhscE/9oADAMBAAIRAxEAP/AP9k="
 
@@ -114,6 +115,7 @@ def generar_factura_pdf(documento, items, es_cotizacion=False):
         ])
 
     prod_table = Table(table_data, colWidths=[3.0*inch, 0.7*inch, 1.1*inch, 1.1*inch, 1.1*inch])
+    prod_table.hAlign = 'CENTER'
     prod_table.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,0), colors.black),
         ('TEXTCOLOR', (0,0), (-1,0), colors.white),
@@ -124,30 +126,55 @@ def generar_factura_pdf(documento, items, es_cotizacion=False):
     elements.append(prod_table)
     elements.append(Spacer(1, 15))
 
+    # --- Pago + totales: un solo bloque centrado, del mismo ancho que la grilla de ítems (7") ---
     texto_cuenta = Paragraph(
         "<b>Datos de Pago:</b><br/>"
         "Cuenta de Ahorros<br/>"
-        "Bancolombia No 333-998815-66<br/>"
-        "Amaia Sierra",
+        "Llave No 0093717215<br/>"
+        "Elkin Sierra",
         account_style
     )
 
-    total_data = [
-        [texto_cuenta, "Valor Bruto:", f"{_cop(valor_total_bruto)} COP"],
-        ["", "Descuento Total:", f"-{_cop(descuento_total)} COP"],
-        ["", "Valor a Pagar:", f"{_cop(valor_a_pagar)} COP"]
-    ]
+    # QR de pago (opcional): static/qr_pago.png (o .jpg / .jpeg). Si no existe, la factura sale sin QR.
+    qr_celda = ""
+    for nombre_qr in ("qr_pago.png", "qr_pago.jpg", "qr_pago.jpeg"):
+        ruta_qr = os.path.join(STATIC_DIR, nombre_qr)
+        if os.path.exists(ruta_qr):
+            lado = 1.15 * inch
+            try:
+                ancho_px, alto_px = ImageReader(ruta_qr).getSize()
+                qr_celda = Image(ruta_qr, width=lado, height=lado * alto_px / ancho_px)
+            except Exception:
+                qr_celda = ""
+            break
 
-    t_totales = Table(total_data, colWidths=[3.2*inch, 2.0*inch, 1.8*inch])
+    total_data = [
+        ["Valor Bruto:", f"{_cop(valor_total_bruto)} COP"],
+        ["Descuento Total:", f"-{_cop(descuento_total)} COP"],
+        ["Valor a Pagar:", f"{_cop(valor_a_pagar)} COP"],
+    ]
+    t_totales = Table(total_data, colWidths=[1.6*inch, 1.5*inch])
     t_totales.setStyle(TableStyle([
-        ('SPAN', (0,0), (0,2)),
-        ('VALIGN', (0,0), (0,2), 'TOP'),
-        ('ALIGN', (0,0), (0,2), 'LEFT'),
-        ('ALIGN', (1,0), (-1,-1), 'RIGHT'),
-        ('FONTNAME', (1,2), (-1,2), 'Helvetica-Bold'),
+        ('ALIGN', (0,0), (-1,-1), 'RIGHT'),
+        ('FONTNAME', (0,2), (-1,2), 'Helvetica-Bold'),
         ('TEXTCOLOR', (0,0), (-1,-1), colors.black),
+        ('TOPPADDING', (0,0), (-1,-1), 3),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 3),
     ]))
-    elements.append(t_totales)
+
+    bloque = Table(
+        [[qr_celda, texto_cuenta, t_totales]],
+        colWidths=[1.35*inch, 2.4*inch, 3.25*inch],   # suma 7.0" = ancho de la grilla
+    )
+    bloque.setStyle(TableStyle([
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('ALIGN', (0,0), (0,0), 'CENTER'),
+        ('ALIGN', (2,0), (2,0), 'RIGHT'),
+        ('LEFTPADDING', (0,0), (-1,-1), 0),
+        ('RIGHTPADDING', (0,0), (-1,-1), 0),
+    ]))
+    bloque.hAlign = 'CENTER'
+    elements.append(bloque)
 
     doc.build(elements)
     buffer.seek(0)

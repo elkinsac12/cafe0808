@@ -271,6 +271,7 @@ function showSection(id, evt) {
     if(id === 'ventas') cargarVentasData();
     if(id === 'pedidos-sec') cargarCotizacionesData();
     if(id === 'clientes') cargarClientes();
+    if(id === 'recordatorios-sec') cargarRecordatorios();
     if(id === 'gastos-sec') cargarModuloGastos();
     if(id === 'parciales-sec') cargarVentasParciales();
     if(id === 'compras') cargarModuloCompras();

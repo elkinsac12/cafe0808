@@ -22,7 +22,7 @@ from app.config import ADMIN_INITIAL_PASSWORD, ENABLE_DOCS, LANDING_DIR, STATIC_
 from app.database import crear_indices, db
 from app.middleware import registrar_middleware
 from app.routers import (
-    auth, clientes, cotizaciones, empaques, gastos, inventario, pages, productos, public, usuarios, ventas,
+    auth, clientes, cotizaciones, empaques, gastos, inventario, pages, productos, public, recordatorios, usuarios, ventas,
 )
 from app.security import hash_password
 from app.services.inventario import ahora
@@ -92,7 +92,7 @@ app.mount("/assets", StaticCache(directory=os.path.join(LANDING_DIR, "assets"), 
 app.mount("/img", StaticCache(directory=os.path.join(LANDING_DIR, "assets", "img"), max_age=604800), name="landing_img")
 
 # API
-for modulo in (auth, usuarios, clientes, gastos, empaques, productos, inventario, ventas, cotizaciones, public):
+for modulo in (auth, usuarios, clientes, gastos, empaques, productos, inventario, ventas, cotizaciones, recordatorios, public):
     app.include_router(modulo.router)
 
 # Páginas (al final: contiene la ruta comodín)

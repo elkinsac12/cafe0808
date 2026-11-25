@@ -18,6 +18,7 @@
     <script src="/static/sistema/js/carrito.js?v={{ v }}" defer></script>
     <script src="/static/sistema/js/pedidos.js?v={{ v }}" defer></script>
     <script src="/static/sistema/js/clientes.js?v={{ v }}" defer></script>
+    <script src="/static/sistema/js/recordatorios.js?v={{ v }}" defer></script>
     <script src="/static/sistema/js/gastos.js?v={{ v }}" defer></script>
     <script src="/static/sistema/js/inventario.js?v={{ v }}" defer></script>
     <script src="/static/sistema/js/empaques.js?v={{ v }}" defer></script>
@@ -66,6 +67,7 @@
         <button class="nav-button admin-only" id="btn-nav-compras" onclick="showSection('compras', event)">📦 Compras de Café</button>
         <button class="nav-button admin-only" id="btn-nav-empaques" onclick="showSection('empaques', event)">🛍️ Empaques y etiquetas</button>
         <button class="nav-button admin-only" id="btn-nav-inventario" onclick="showSection('inventario', event)">📊 Productos e Inventario</button>
+        <button class="nav-button admin-only" id="btn-nav-recordatorios" onclick="showSection('recordatorios-sec', event)">🔔 Recontacto</button>
         <button class="nav-button admin-only" id="btn-nav-creditos" onclick="showSection('creditos', event)">💳 Créditos</button>
         <button class="nav-button admin-only" id="btn-nav-reportes" onclick="showSection('reportes', event)">📈 Reportes</button>
         <button class="nav-button admin-only" id="btn-nav-usuarios" onclick="showSection('usuarios-sec', event)">👤 Usuarios</button>
@@ -305,6 +307,33 @@
             </div>
         </div>
 
+        <!-- MÓDULO RECONTACTO -->
+        <div id="recordatorios-sec" class="section admin-only">
+            <h1>🔔 Plan de Recontacto</h1>
+            <div class="card">
+                <p style="opacity:.8; margin-bottom:10px;">Se calcula con las dos últimas compras de cada cliente: los días entre ellas son su ciclo de recompra. El botón abre WhatsApp con el mensaje listo; tú solo pulsas enviar. Solo se escribe a quien acepta mensajes.</p>
+                <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:10px;">
+                    <select id="rec-segmento" onchange="renderRecordatorios()" style="width:auto;">
+                        <option value="accionables">Para contactar (atrasados, pronto y dormidos)</option>
+                        <option value="Atrasado">Atrasados</option>
+                        <option value="Le toca pronto">Le toca pronto</option>
+                        <option value="Dormido">Dormidos</option>
+                        <option value="Al día">Al día</option>
+                        <option value="todos">Todos</option>
+                    </select>
+                    <label style="margin:0;"><input type="checkbox" id="rec-ocultar-recientes" checked onchange="renderRecordatorios()" style="width:auto;"> Ocultar contactados esta semana</label>
+                </div>
+                <div class="table-responsive">
+                    <table id="tabla-recordatorios">
+                        <thead>
+                            <tr><th>Cliente</th><th>Estado</th><th>Última compra</th><th>Ciclo</th><th>Le toca</th><th>Producto</th><th>Acción</th></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- MÓDULO OTROS GASTOS -->
         <div id="gastos-sec" class="section admin-only">
             <h1>💸 Módulo de Otros Gastos y Balance Neta</h1>
@@ -498,11 +527,20 @@
                 </form>
             </div>
             <div class="card">
+                <h3>Lista de precios Barranquilla</h3>
+                <p style="opacity:.8; margin-bottom:10px;">El precio de Barranquilla incluye el flete: <strong>precio de venta + flete por libra × libras de la bolsa</strong>, redondeado hacia arriba a $500. Si cambias el precio de venta o el flete, se actualiza solo.</p>
+                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                    <label for="flete-bq" style="margin:0;">Flete por libra (COP)</label>
+                    <input type="number" id="flete-bq" min="0" step="100" placeholder="Ej: 3800" style="width:160px;">
+                    <button type="button" class="btn-gold" style="width:auto;" onclick="guardarFleteBarranquilla()">Guardar flete</button>
+                </div>
+            </div>
+            <div class="card">
                 <h3>Catálogo de Productos</h3>
                 <div class="table-responsive">
                     <table id="tabla-productos">
                         <thead>
-                            <tr><th>Nombre</th><th>Gramaje</th><th>Precio de Venta</th><th>Costo del Producto</th><th>Acciones</th></tr>
+                            <tr><th>Nombre</th><th>Gramaje</th><th>Precio de Venta</th><th>Precio Barranquilla</th><th>Costo del Producto</th><th>Acciones</th></tr>
                         </thead>
                         <tbody></tbody>
                     </table>
@@ -520,7 +558,7 @@
                 </div>
                 <div class="table-responsive">
                     <table id="tabla-creditos">
-                        <thead><tr><th>ID</th><th>Fecha</th><th>Cliente</th><th>Total</th><th>Estado</th><th>Acción</th></tr></thead>
+                        <thead><tr><th>ID</th><th>Fecha</th><th>Cliente</th><th>Total</th><th>Estado</th><th>Factura</th><th>Acción</th></tr></thead>
                         <tbody></tbody>
                     </table>
                 </div>
