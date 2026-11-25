@@ -127,10 +127,14 @@ def generar_factura_pdf(documento, items, es_cotizacion=False):
     elements.append(Spacer(1, 15))
 
     # --- Pago + totales: un solo bloque centrado, del mismo ancho que la grilla de ítems (7") ---
+    # Icono de llave (static/icono_llave.png) antes del texto; si el archivo no existe, no se muestra
+    ruta_llave = os.path.join(STATIC_DIR, "icono_llave.png")
+    icono_llave = f'<img src="{ruta_llave}" width="9" height="9" valign="-1"/> ' if os.path.exists(ruta_llave) else ""
+
     texto_cuenta = Paragraph(
         "<b>Datos de Pago:</b><br/>"
         "Cuenta de Ahorros<br/>"
-        "Llave No 0093717215<br/>"
+        f"{icono_llave}Llave No. 0093717215<br/>"
         "Elkin Sierra",
         account_style
     )
