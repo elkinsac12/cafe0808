@@ -21,13 +21,17 @@ function renderRecordatorios() {
     const filtro = document.getElementById('rec-segmento').value;
     const ocultar = document.getElementById('rec-ocultar-recientes').checked;
     const lista = recordatoriosCache.filter(r => {
-        if (!r.acepta_mensajes) return filtro === 'todos';
-        if (ocultar && r.contactado_reciente) return false;
         if (filtro === 'todos') return true;
-        if (filtro === 'accionables') return r.segmento !== 'Al día';
+        if (!r.acepta_mensajes || r.pausado) return false;
+        if (ocultar && r.contactado_reciente) return false;
+        if (filtro === 'accionables') {
+            if (r.segmento === 'Al día' || r.segmento === 'Inactivo') return false;
+            if (r.segmento === 'Reactivación' && !r.reactivar_hoy) return false;
+            return true;
+        }
         return r.segmento === filtro;
     });
-    const colores = { 'Atrasado': '#ff6b6b', 'Le toca pronto': '#f5a623', 'Dormido': '#9aa0a6', 'Al día': '#2ecc71' };
+    const colores = { 'Atrasado': '#ff6b6b', 'Le toca pronto': '#f5a623', 'Primera compra': '#4aa3ff', 'Reactivación': '#c58aff', 'Al día': '#2ecc71', 'Inactivo': '#9aa0a6' };
 
     renderTablaPaginada('tabla-recordatorios', lista, r => {
         const idx = recordatoriosCache.indexOf(r);
@@ -36,23 +40,48 @@ function renderRecordatorios() {
         if (!r.acepta_mensajes) {
             accion = `<span style="opacity:.7;">No acepta mensajes</span>
                 <button class="btn-gold" style="padding:4px 8px;width:auto;" onclick="cambiarPreferenciaRec(${idx}, true)">Reactivar</button>`;
+        } else if (r.pausado) {
+            accion = `<span style="opacity:.7;" title="3 mensajes sin compra: se pausa hasta que vuelva a comprar">Pausado (3 mensajes)</span>`;
         } else if (!r.celular) {
             accion = `<span style="opacity:.7;" title="Registra el celular en el módulo Clientes">Sin celular</span>`;
         } else {
             accion = `<a href="${escRec(r.whatsapp)}" target="_blank" rel="noopener" class="btn-gold" style="display:inline-block;padding:4px 8px;text-decoration:none;" onclick="marcarContactadoRec(${idx})" title="${escRec(r.mensaje)}">💬 WhatsApp</a>
                 <button class="btn-danger" style="padding:4px 8px;width:auto;" title="El cliente pidió no recibir mensajes" onclick="cambiarPreferenciaRec(${idx}, false)">🚫</button>`;
         }
-        const contactado = r.ultimo_contacto ? `<br><small style="opacity:.7;">Contactado ${escRec(r.ultimo_contacto)}</small>` : '';
+        const contactado = r.ultimo_contacto ? `<br><small style="opacity:.7;">Contactado ${escRec(r.ultimo_contacto)} (${r.contactos}/3)</small>` : '';
+        const selTipo = r.registrado ? `<br><select style="width:auto;padding:2px 4px;font-size:12px;" onchange="cambiarTipoRec(${idx}, this.value)">
+            <option value="Persona" ${r.tipo_cliente === 'Persona' ? 'selected' : ''}>Persona</option>
+            <option value="Negocio" ${r.tipo_cliente === 'Negocio' ? 'selected' : ''}>Negocio</option></select>`
+            : `<br><small style="opacity:.7;">${escRec(r.tipo_cliente)}</small>`;
+        const consumo = r.tipo_cliente === 'Negocio'
+            ? `pide cada ~${r.ciclo_dias} d`
+            : `dura ~${r.ciclo_dias} d${r.queda_g != null ? `<br><small style="opacity:.7;">quedan ~${r.queda_g} g</small>` : ''}`;
         return `<tr>
-            <td><strong>${escRec(r.cliente)}</strong>${contactado}</td>
+            <td><strong>${escRec(r.cliente)}</strong>${selTipo}${contactado}</td>
             <td style="color:${colores[r.segmento] || '#fff'}; font-weight:bold;">${escRec(r.segmento)}</td>
-            <td>${escRec(r.ultima_compra)}<br><small style="opacity:.7;">hace ${r.dias_desde} d</small></td>
-            <td title="${escRec(r.base_ciclo)}">${r.ciclo_dias} d${r.compras < 2 ? ' *' : ''}</td>
+            <td>${escRec(r.ultima_compra)}<br><small style="opacity:.7;">hace ${r.dias_desde} d · ${r.gramos_ultima} g</small></td>
+            <td title="${escRec(r.base_ciclo)}">${consumo}</td>
             <td>${escRec(r.proxima)}<br><small style="opacity:.7;">${cuando}</small></td>
             <td>${escRec(r.producto)}</td>
             <td>${accion}</td>
         </tr>`;
     }, { pageSize: 15 });
+}
+
+async function cambiarTipoRec(idx, tipo) {
+    const r = recordatoriosCache[idx];
+    if (!r) return;
+    try {
+        const res = await fetch('/api/recordatorios/tipo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cliente: r.cliente, tipo })
+        });
+        if (res.ok) await cargarRecordatorios();
+        else alert('No se pudo guardar el tipo de cliente.');
+    } catch (err) {
+        console.error('Error guardando tipo:', err);
+    }
 }
 
 async function marcarContactadoRec(idx) {
@@ -65,6 +94,7 @@ async function marcarContactadoRec(idx) {
             body: JSON.stringify({ cliente: r.cliente })
         });
         r.contactado_reciente = true;
+        r.contactos = (r.contactos || 0) + 1;
         r.ultimo_contacto = new Date().toISOString().slice(0, 10);
         setTimeout(renderRecordatorios, 400);
     } catch (err) {

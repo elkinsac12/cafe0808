@@ -311,14 +311,16 @@
         <div id="recordatorios-sec" class="section admin-only">
             <h1>🔔 Plan de Recontacto</h1>
             <div class="card">
-                <p style="opacity:.8; margin-bottom:10px;">Se calcula con las dos últimas compras de cada cliente: los días entre ellas son su ciclo de recompra. El botón abre WhatsApp con el mensaje listo; tú solo pulsas enviar. Solo se escribe a quien acepta mensajes.</p>
+                <p style="opacity:.8; margin-bottom:10px;">Personas: se estima cuánto les dura el café según los gramos que compraron (20 g/día, ajustado con su historial); las compras con menos de 10 días de diferencia cuentan como una sola. Negocios: se usa el ritmo habitual de sus pedidos. Máximo 3 mensajes por cliente hasta que vuelva a comprar. El botón abre WhatsApp con el mensaje listo; tú solo pulsas enviar.</p>
                 <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:10px;">
                     <select id="rec-segmento" onchange="renderRecordatorios()" style="width:auto;">
-                        <option value="accionables">Para contactar (atrasados, pronto y dormidos)</option>
+                        <option value="accionables">Para contactar hoy</option>
                         <option value="Atrasado">Atrasados</option>
                         <option value="Le toca pronto">Le toca pronto</option>
-                        <option value="Dormido">Dormidos</option>
+                        <option value="Primera compra">Primera compra (seguimiento)</option>
+                        <option value="Reactivación">Reactivación (todos)</option>
                         <option value="Al día">Al día</option>
+                        <option value="Inactivo">Inactivos</option>
                         <option value="todos">Todos</option>
                     </select>
                     <label style="margin:0;"><input type="checkbox" id="rec-ocultar-recientes" checked onchange="renderRecordatorios()" style="width:auto;"> Ocultar contactados esta semana</label>
@@ -326,7 +328,7 @@
                 <div class="table-responsive">
                     <table id="tabla-recordatorios">
                         <thead>
-                            <tr><th>Cliente</th><th>Estado</th><th>Última compra</th><th>Ciclo</th><th>Le toca</th><th>Producto</th><th>Acción</th></tr>
+                            <tr><th>Cliente</th><th>Estado</th><th>Última compra</th><th>Consumo / ciclo</th><th>Contactar el</th><th>Producto</th><th>Acción</th></tr>
                         </thead>
                         <tbody></tbody>
                     </table>
