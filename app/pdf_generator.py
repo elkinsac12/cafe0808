@@ -134,7 +134,7 @@ def generar_factura_pdf(documento, items, es_cotizacion=False):
     texto_cuenta = Paragraph(
         "<b>Datos de Pago:</b><br/>"
         "Cuenta de Ahorros<br/>"
-        f"{icono_llave}Llave No. 0093717215<br/>"
+        f"{icono_llave}Llave No. 3012226387<br/>"
         "Elkin Sierra",
         account_style
     )
