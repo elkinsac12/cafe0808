@@ -177,7 +177,7 @@ function inicioConContenido(canvas) {
 
 // Mensaje que acompaña a la imagen en WhatsApp (el vendedor puede editarlo antes de enviar).
 function mensajeWhatsappFactura(c, tipo) {
-    const primer = (c.cliente && c.cliente !== 'Cliente General') ? c.cliente.trim().split(/\s+/)[0] : '';
+    const primer = (c.cliente && c.cliente !== 'Cliente General') ? c.cliente.trim() : '';
     const num = c.numero ? ` N° ${c.numero}` : '';
     const total = c.total ? ` por ${fmtCOP(c.total)}` : '';
     return `Hola${primer ? ' ' + primer : ''} ☕ Te enviamos tu ${tipo}${num} de 0808 Café${total}. ¡Gracias por tu compra!`;
@@ -252,7 +252,7 @@ function mostrarPanelWhatsapp(copiada) {
                 <li>Envía. Si WhatsApp no pone el mensaje como pie de foto, se envía debajo de la imagen.</li>
             </ol>` : ''}
             <div class="panel-wa-botones">
-                <button type="button" class="btn-wa" onclick="abrirChatWhatsapp()">Abrir chat${cliente ? ' de ' + esc(cliente.split(' ')[0]) : ''}</button>
+                <button type="button" class="btn-wa" onclick="abrirChatWhatsapp()">Abrir chat${cliente ? ' de ' + esc(cliente) : ''}</button>
                 <button type="button" class="btn-secundario" onclick="compartirImagenFactura()">Compartir imagen</button>
                 <button type="button" class="btn-secundario" onclick="descargarImagenFactura()">Guardar imagen</button>
             </div>
