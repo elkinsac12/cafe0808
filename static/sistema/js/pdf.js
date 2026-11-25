@@ -138,7 +138,11 @@ async function generarImagenFactura() {
     }
     if (!paginas.length) throw new Error('No se pudo preparar la imagen de la factura.');
 
-    const recortes = paginas.map(c => ({ c, alto: altoConContenido(c) }));
+    // Se recorta el blanco de arriba (solo 1ª página) y de abajo: la imagen queda compacta y todo el texto se ve de un vistazo.
+    const recortes = paginas.map((c, i) => {
+        const y0 = i === 0 ? inicioConContenido(c) : 0;
+        return { c, y0, alto: Math.max(1, altoConContenido(c) - y0) };
+    });
     const ancho = paginas[0].width;
     const separacion = Math.round(ancho * 0.02);
     const alto = recortes.reduce((a, r) => a + r.alto, 0) + separacion * (recortes.length - 1);
@@ -150,10 +154,33 @@ async function generarImagenFactura() {
     ctx.fillRect(0, 0, ancho, alto);
     let y = 0;
     for (const r of recortes) {
-        ctx.drawImage(r.c, 0, 0, r.c.width, r.alto, 0, y, r.c.width, r.alto);
+        ctx.drawImage(r.c, 0, r.y0, r.c.width, r.alto, 0, y, r.c.width, r.alto);
         y += r.alto + separacion;
     }
     return new Promise((ok, mal) => lienzo.toBlob(b => b ? ok(b) : mal(new Error('No se pudo crear la imagen.')), 'image/png'));
+}
+
+// Primera fila con tinta (menos un margen): quita el espacio en blanco sobre el logo.
+function inicioConContenido(canvas) {
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    const w = canvas.width, h = canvas.height, bloque = 24;
+    for (let y = 0; y < h - bloque; y += bloque) {
+        const datos = ctx.getImageData(0, y, w, bloque).data;
+        for (let i = 0; i < datos.length; i += 16) {
+            if (datos[i] < 235 || datos[i + 1] < 235 || datos[i + 2] < 235) {
+                return Math.max(0, y - Math.round(w * 0.03));
+            }
+        }
+    }
+    return 0;
+}
+
+// Mensaje que acompaña a la imagen en WhatsApp (el vendedor puede editarlo antes de enviar).
+function mensajeWhatsappFactura(c, tipo) {
+    const primer = (c.cliente && c.cliente !== 'Cliente General') ? c.cliente.trim().split(/\s+/)[0] : '';
+    const num = c.numero ? ` N° ${c.numero}` : '';
+    const total = c.total ? ` por ${fmtCOP(c.total)}` : '';
+    return `Hola${primer ? ' ' + primer : ''} ☕ Te enviamos tu ${tipo}${num} de 0808 Café${total}. ¡Gracias por tu compra!`;
 }
 
 // Alto útil de una página: hasta la última fila con tinta + un margen.
@@ -215,12 +242,14 @@ function mostrarPanelWhatsapp(copiada) {
             <p class="panel-wa-estado ${copiada ? 'ok' : 'aviso'}">${copiada
                 ? `✓ Imagen de la ${tipo} copiada en alta resolución.`
                 : 'Este navegador no permite copiar la imagen. Usa <b>Compartir imagen</b>.'}</p>
+            <label for="wa-mensaje">Mensaje que acompaña la imagen</label>
+            <textarea id="wa-mensaje" class="panel-wa-msg" rows="3">${esc(mensajeWhatsappFactura(c, tipo))}</textarea>
             <label for="wa-telefono">Celular de WhatsApp</label>
             <div class="panel-wa-tel"><span>+57</span><input id="wa-telefono" type="tel" inputmode="numeric" maxlength="15" placeholder="300 123 4567" value="${esc(tel)}"></div>
             ${copiada ? `<ol class="panel-wa-pasos">
-                <li>Toca <b>Abrir chat</b>.</li>
-                <li>En el chat, mantén presionada la caja de texto y elige <b>Pegar</b>.</li>
-                <li>Envía la imagen.</li>
+                <li>Toca <b>Abrir chat</b>: el mensaje ya queda escrito.</li>
+                <li>Mantén presionada la caja de texto y elige <b>Pegar</b> para adjuntar la imagen.</li>
+                <li>Envía. Si WhatsApp no pone el mensaje como pie de foto, se envía debajo de la imagen.</li>
             </ol>` : ''}
             <div class="panel-wa-botones">
                 <button type="button" class="btn-wa" onclick="abrirChatWhatsapp()">Abrir chat${cliente ? ' de ' + esc(cliente.split(' ')[0]) : ''}</button>
@@ -245,8 +274,10 @@ function abrirChatWhatsapp() {
     }
     const tel = crudo.length === 10 ? '57' + crudo : crudo;
     // En celular se abre la app de WhatsApp directo en el chat; en computador, WhatsApp Web/Escritorio.
-    if (esCelular()) location.href = `whatsapp://send?phone=${tel}`;
-    else window.open(`https://wa.me/${tel}`, '_blank');
+    const texto = encodeURIComponent((document.getElementById('wa-mensaje')?.value || '').trim());
+    const conTexto = texto ? `&text=${texto}` : '';
+    if (esCelular()) location.href = `whatsapp://send?phone=${tel}${conTexto}`;
+    else window.open(`https://wa.me/${tel}${texto ? '?text=' + texto : ''}`, '_blank');
 }
 
 // Alternativa: menú de compartir del teléfono con la imagen adjunta.
@@ -254,7 +285,8 @@ async function compartirImagenFactura() {
     if (!imagenFacturaBlob) return;
     const archivo = new File([imagenFacturaBlob], nombrePdfDescarga.replace(/\.pdf$/i, '.png'), { type: 'image/png' });
     if (navigator.canShare && navigator.canShare({ files: [archivo] })) {
-        try { await navigator.share({ files: [archivo] }); } catch (_) { /* cancelado */ }
+        const texto = (document.getElementById('wa-mensaje')?.value || '').trim();
+        try { await navigator.share(texto ? { files: [archivo], text: texto } : { files: [archivo] }); } catch (_) { /* cancelado */ }
     } else {
         descargarImagenFactura();
     }

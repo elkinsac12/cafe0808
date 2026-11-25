@@ -27,10 +27,10 @@ def generar_factura_pdf(documento, items, es_cotizacion=False):
         logo_path = os.path.join(STATIC_DIR, "logo.png")
 
     if os.path.exists(logo_path):
-        logo_image = Image(logo_path, width=3.5*inch, height=3.5*inch)
+        logo_image = Image(logo_path, width=2.5*inch, height=2.5*inch)
     else:
         logo_data = base64.b64decode(LOGO_FALLBACK)
-        logo_image = Image(io.BytesIO(logo_data), width=3.5*inch, height=3.5*inch)
+        logo_image = Image(io.BytesIO(logo_data), width=2.5*inch, height=2.5*inch)
 
     title_style = ParagraphStyle(
         'TitleStyle', 
@@ -134,8 +134,8 @@ def generar_factura_pdf(documento, items, es_cotizacion=False):
     texto_cuenta = Paragraph(
         "<b>Datos de Pago:</b><br/>"
         "Cuenta de Ahorros<br/>"
-        f"{icono_llave}Llave No. 3012226387<br/>"
-        "0808 CAFÉ",
+        f"{icono_llave}Llave No. 0093717215<br/>"
+        "Elkin Sierra",
         account_style
     )
 

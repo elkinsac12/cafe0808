@@ -293,6 +293,7 @@ button.btn-secundario:hover { border-color: var(--gold-primary); color: var(--go
 .panel-wa-estado { margin: 0 0 14px; font-size: 14px; padding: 8px 10px; border-radius: 8px; }
 .panel-wa-estado.ok { background: rgba(37, 211, 102, .12); color: #7ff0a8; }
 .panel-wa-estado.aviso { background: rgba(245, 167, 11, .12); color: #ffd27a; }
+.panel-wa-msg { width: 100%; margin: 4px 0 12px; font-size: 15px; resize: vertical; }
 .panel-wa-tel { display: flex; align-items: center; gap: 8px; margin: 4px 0 12px; }
 .panel-wa-tel span { color: var(--text-muted); font-weight: 600; }
 .panel-wa-tel input { margin: 0; font-size: 17px; letter-spacing: .5px; }
